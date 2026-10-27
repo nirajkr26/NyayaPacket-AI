@@ -32,3 +32,10 @@ lerna-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+
+
+AGENT_RULES.md
+TASK_LIST.md
+PREVIOUS_TASKS.md
+PRD.md
