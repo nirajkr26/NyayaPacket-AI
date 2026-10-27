@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+  
+  body {
+    background-color: #F8FAFC;
+    color: #1E293B;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+}
+
+/* Accessible focus ring standard */
+*:focus-visible {
+  outline: 2px solid #0D9488;
+  outline-offset: 2px;
+}
