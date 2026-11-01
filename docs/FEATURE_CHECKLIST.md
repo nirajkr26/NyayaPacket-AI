@@ -24,17 +24,17 @@ Status Legend:
 ---
 
 ## Phase 1: Repository & Backend Foundation
-- [ ] Initialize modular Bun + TypeScript backend structure in `server/`.
-- [ ] Configure environment schema validation with Zod (`server/src/config/env.ts`).
-- [ ] Setup structured logger (Pino or Winston) with PII sanitization.
-- [ ] Configure Express application with security middleware (Helmet, CORS, Rate-Limiting).
-- [ ] Implement global request ID middleware (`x-request-id`).
-- [ ] Implement centralized error handling middleware and standard API response envelope.
-- [ ] Configure Prisma client and verify Neon PostgreSQL connectivity.
-- [ ] Configure Upstash Redis client with TLS (`rediss://`) and health verification.
-- [ ] Implement health check (`/health`) and readiness check (`/ready`) endpoints.
-- [ ] Implement graceful shutdown hooks (SIGTERM, SIGINT).
-- [ ] Pass baseline TypeScript and health endpoint validation tests.
+- [x] Initialize modular Bun + TypeScript backend structure in `server/`.
+- [x] Configure environment schema validation with Zod (`server/src/config/env.ts`).
+- [x] Setup structured logger (Pino) with PII sanitization.
+- [x] Configure Express application with security middleware (Helmet, CORS, Rate-Limiting).
+- [x] Implement global request ID middleware (`x-request-id`).
+- [x] Implement centralized error handling middleware and standard API response envelope.
+- [x] Configure Prisma client and verify Neon PostgreSQL connectivity.
+- [x] Configure Upstash Redis client with TLS (`rediss://`) and health verification.
+- [x] Implement health check (`/health`) and readiness check (`/ready`) endpoints.
+- [x] Implement graceful shutdown hooks (SIGTERM, SIGINT).
+- [x] Pass baseline TypeScript and health endpoint validation tests.
 
 ---
 

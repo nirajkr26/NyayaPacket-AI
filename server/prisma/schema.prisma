@@ -1,0 +1,665 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------- ENUMS ----------------
+
+enum UserRole {
+  CITIZEN
+  LAWYER
+  ADMIN
+}
+
+enum LawyerVerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum VerificationDocumentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  NEEDS_REUPLOAD
+}
+
+enum CaseStatus {
+  NEW_CASE
+  INTERVIEW_IN_PROGRESS
+  EVIDENCE_COLLECTION
+  AI_DRAFT_GENERATED
+  CITIZEN_VERIFICATION
+  READY_FOR_LAWYER
+  ACTION_PLAN_ACTIVE
+  CLOSED
+  ARCHIVED
+}
+
+enum CasePriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum StatementType {
+  TEXT
+  VOICE_TRANSCRIPT
+  MANUAL_CORRECTION
+}
+
+enum ProcessingStatus {
+  UPLOADED
+  QUEUED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum EvidenceType {
+  IMAGE
+  PDF
+  AUDIO
+  VIDEO
+  DOCUMENT
+  OTHER
+}
+
+enum VerificationStatus {
+  UNVERIFIED
+  CITIZEN_CONFIRMED
+  CITIZEN_CORRECTED
+  LAWYER_REVIEWED
+  DISPUTED
+}
+
+enum InterviewRole {
+  USER
+  AI
+  SYSTEM
+}
+
+enum AiRunType {
+  INTERVIEW_ANALYSIS
+  CASE_SUMMARY
+  TIMELINE_EXTRACTION
+  EVIDENCE_ANALYSIS
+  MISSING_INFORMATION
+}
+
+enum ConsultationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  RESCHEDULE_REQUESTED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum ConsultationMode {
+  ONLINE
+  IN_PERSON
+}
+
+enum CommentVisibility {
+  SHARED_WITH_CITIZEN
+  PRIVATE_LAWYER_NOTE
+}
+
+enum ActionItemStatus {
+  TODO
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum NotificationType {
+  CONSULTATION
+  LAWYER_VERIFICATION
+  CASE_UPDATE
+  EVIDENCE_PROCESSING
+  AI_PROCESSING
+  ACTION_ITEM
+  SYSTEM
+}
+
+// ---------------- USERS ----------------
+
+model User {
+  id            String   @id @default(cuid())
+  authUserId    String   @unique // Neon Auth / Better Auth user identifier (sub)
+  email         String   @unique
+  phone         String?  @unique
+  fullName      String
+  profileImage  String?
+  role          UserRole @default(CITIZEN)
+  isActive      Boolean  @default(true)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  lawyerProfile LawyerProfile?
+
+  cases               Case[]               @relation("CaseOwner")
+  statements          Statement[]          @relation("StatementAuthor")
+  interviewSessions   InterviewSession[]   @relation("InterviewOwner")
+  uploadedEvidence    Evidence[]           @relation("EvidenceUploader")
+
+  consultationRequests ConsultationRequest[] @relation("ConsultationCitizen")
+  grantsCreated        AccessGrant[]         @relation("GrantCreator")
+
+  comments            CaseComment[]        @relation("CommentAuthor")
+  actionItemsCreated  ActionItem[]         @relation("ActionCreator")
+  actionItemsAssigned ActionItem[]         @relation("ActionAssignee")
+
+  caseVerifications   CaseVerification[]   @relation("CaseVerifier")
+  statusChanges       CaseStatusHistory[]  @relation("StatusActor")
+
+  reviewedDocuments   LawyerVerificationDocument[] @relation("DocumentReviewer")
+
+  auditLogs           AuditLog[]
+  notifications       Notification[]
+
+  @@index([role, isActive])
+}
+
+// ---------------- LAWYER MANAGEMENT ----------------
+
+model LawyerProfile {
+  id                  String                   @id @default(cuid())
+  userId              String                   @unique
+  barCouncilNumber    String                   @unique
+  stateBarCouncil     String
+  enrollmentYear      Int
+  experienceYears     Int                      @default(0)
+
+  city                String
+  state               String
+  bio                 String?                  @db.Text
+  languages           String[]
+  consultationOnline  Boolean                  @default(true)
+  consultationInPerson Boolean                 @default(false)
+
+  verificationStatus  LawyerVerificationStatus @default(PENDING)
+  isAvailable         Boolean                  @default(true)
+  isListed            Boolean                  @default(false)
+
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
+
+  user                User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  verificationDocuments LawyerVerificationDocument[]
+  practiceAreas         LawyerPracticeArea[]
+  availability          LawyerAvailability[]
+  consultationRequests  ConsultationRequest[]
+  accessGrants          AccessGrant[]
+  comments              CaseComment[]          @relation("LawyerComments")
+
+  @@index([verificationStatus, isListed, isAvailable])
+  @@index([city, state])
+}
+
+model LawyerVerificationDocument {
+  id              String                     @id @default(cuid())
+  lawyerProfileId String
+  documentType    String
+  originalName    String
+  storageKey      String                     @unique
+  status          VerificationDocumentStatus @default(PENDING)
+  reviewNotes     String?                    @db.Text
+
+  reviewedById    String?
+  reviewedAt      DateTime?
+  uploadedAt      DateTime                   @default(now())
+
+  lawyerProfile   LawyerProfile              @relation(fields: [lawyerProfileId], references: [id], onDelete: Cascade)
+  reviewedBy      User?                      @relation("DocumentReviewer", fields: [reviewedById], references: [id])
+
+  @@index([lawyerProfileId, status])
+}
+
+model PracticeArea {
+  id          String               @id @default(cuid())
+  name        String               @unique
+  slug        String               @unique
+  description String?
+
+  lawyers     LawyerPracticeArea[]
+}
+
+model LawyerPracticeArea {
+  id              String        @id @default(cuid())
+  lawyerProfileId String
+  practiceAreaId  String
+
+  lawyerProfile   LawyerProfile @relation(fields: [lawyerProfileId], references: [id], onDelete: Cascade)
+  practiceArea    PracticeArea  @relation(fields: [practiceAreaId], references: [id], onDelete: Cascade)
+
+  @@unique([lawyerProfileId, practiceAreaId])
+  @@index([practiceAreaId])
+}
+
+model LawyerAvailability {
+  id              String        @id @default(cuid())
+  lawyerProfileId String
+  dayOfWeek       Int
+  startTime       String
+  endTime         String
+  timezone        String        @default("Asia/Kolkata")
+  isActive        Boolean       @default(true)
+
+  lawyerProfile   LawyerProfile @relation(fields: [lawyerProfileId], references: [id], onDelete: Cascade)
+
+  @@index([lawyerProfileId, dayOfWeek, isActive])
+}
+
+// ---------------- CASE MANAGEMENT ----------------
+
+model CaseCategory {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+
+  cases       Case[]
+}
+
+model Case {
+  id          String       @id @default(cuid())
+  caseNumber  String       @unique
+
+  title       String
+  description String?      @db.Text
+
+  ownerId     String
+  categoryId  String
+  status      CaseStatus   @default(NEW_CASE)
+  priority    CasePriority @default(NORMAL)
+
+  incidentDate DateTime?
+  city         String?
+  state        String?
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  closedAt    DateTime?
+
+  owner       User         @relation("CaseOwner", fields: [ownerId], references: [id])
+  category    CaseCategory @relation(fields: [categoryId], references: [id])
+
+  parties               CaseParty[]
+  statements            Statement[]
+  evidence              Evidence[]
+  interviewSessions     InterviewSession[]
+  timelineEvents        TimelineEvent[]
+  aiRuns                AiRun[]
+  packets               PacketGeneration[]
+  consultationRequests  ConsultationRequest[]
+  accessGrants          AccessGrant[]
+  comments              CaseComment[]
+  actionItems           ActionItem[]
+  verifications         CaseVerification[]
+  statusHistory         CaseStatusHistory[]
+
+  @@index([ownerId, status])
+  @@index([categoryId, createdAt])
+  @@index([createdAt])
+}
+
+model CaseParty {
+  id           String  @id @default(cuid())
+  caseId       String
+  name         String
+  relationship String?
+  organization String?
+  contactInfo  String?
+  description  String? @db.Text
+
+  case         Case    @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@index([caseId])
+}
+
+model CaseStatusHistory {
+  id          String      @id @default(cuid())
+  caseId      String
+  changedById String?
+  oldStatus   CaseStatus?
+  newStatus   CaseStatus
+  note        String?     @db.Text
+  createdAt   DateTime    @default(now())
+
+  case        Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  changedBy   User?       @relation("StatusActor", fields: [changedById], references: [id])
+
+  @@index([caseId, createdAt])
+}
+
+// ---------------- CITIZEN STATEMENTS & INTERVIEWS ----------------
+
+model Statement {
+  id          String        @id @default(cuid())
+  caseId      String
+  authorId    String
+  type        StatementType
+  content     String        @db.Text
+  language    String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  case        Case          @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  author      User          @relation("StatementAuthor", fields: [authorId], references: [id])
+
+  timelineSources TimelineEventSource[]
+  aiSources       AiOutputSource[]
+
+  @@index([caseId, createdAt])
+}
+
+model InterviewSession {
+  id        String             @id @default(cuid())
+  caseId    String
+  userId    String
+  language  String             @default("en")
+  isActive  Boolean            @default(true)
+
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  case      Case               @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  user      User               @relation("InterviewOwner", fields: [userId], references: [id])
+  messages  InterviewMessage[]
+
+  @@index([caseId, createdAt])
+}
+
+model InterviewMessage {
+  id              String           @id @default(cuid())
+  sessionId       String
+  role            InterviewRole
+  content         String           @db.Text
+  audioStorageKey String?
+  createdAt       DateTime         @default(now())
+
+  session         InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
+}
+
+// ---------------- EVIDENCE ----------------
+
+model Evidence {
+  id               String           @id @default(cuid())
+  caseId           String
+  uploadedById     String
+
+  originalName     String
+  storageKey       String           @unique
+  mimeType         String
+  fileSize         BigInt
+  fileType         EvidenceType
+  sha256           String
+
+  description      String?          @db.Text
+  extractedText    String?          @db.Text
+  processingStatus ProcessingStatus @default(UPLOADED)
+
+  uploadedAt       DateTime         @default(now())
+  processedAt      DateTime?
+
+  case             Case             @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  uploadedBy       User             @relation("EvidenceUploader", fields: [uploadedById], references: [id])
+
+  timelineSources  TimelineEventSource[]
+  aiSources        AiOutputSource[]
+
+  @@index([caseId, uploadedAt])
+  @@index([caseId, processingStatus])
+}
+
+// ---------------- TIMELINE ----------------
+
+model TimelineEvent {
+  id                 String             @id @default(cuid())
+  caseId             String
+  eventDate          DateTime?
+  title              String
+  description        String?            @db.Text
+  verificationStatus VerificationStatus @default(UNVERIFIED)
+
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  case               Case               @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  sources            TimelineEventSource[]
+  aiSources          AiOutputSource[]
+
+  @@index([caseId, eventDate])
+}
+
+model TimelineEventSource {
+  id              String        @id @default(cuid())
+  timelineEventId String
+  evidenceId      String?
+  statementId     String?
+  sourceNote      String?
+
+  timelineEvent   TimelineEvent @relation(fields: [timelineEventId], references: [id], onDelete: Cascade)
+  evidence        Evidence?     @relation(fields: [evidenceId], references: [id], onDelete: Cascade)
+  statement       Statement?    @relation(fields: [statementId], references: [id], onDelete: Cascade)
+
+  @@index([timelineEventId])
+}
+
+// ---------------- AI PROCESSING ----------------
+
+model AiRun {
+  id               String           @id @default(cuid())
+  caseId           String
+  type             AiRunType
+  provider         String
+  model            String
+  promptVersion    String
+
+  status           ProcessingStatus @default(QUEUED)
+  rawOutput        Json?
+  normalizedOutput Json?
+  errorMessage     String?          @db.Text
+
+  createdAt        DateTime         @default(now())
+  completedAt      DateTime?
+
+  case             Case             @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  sources          AiOutputSource[]
+
+  @@index([caseId, createdAt])
+  @@index([status, createdAt])
+}
+
+model AiOutputSource {
+  id              String         @id @default(cuid())
+  aiRunId         String
+  evidenceId      String?
+  statementId     String?
+  timelineEventId String?
+
+  relevanceNote   String?
+
+  aiRun           AiRun          @relation(fields: [aiRunId], references: [id], onDelete: Cascade)
+  evidence        Evidence?      @relation(fields: [evidenceId], references: [id], onDelete: Cascade)
+  statement       Statement?     @relation(fields: [statementId], references: [id], onDelete: Cascade)
+  timelineEvent   TimelineEvent? @relation(fields: [timelineEventId], references: [id], onDelete: Cascade)
+
+  @@index([aiRunId])
+}
+
+// ---------------- CITIZEN VERIFICATION & PDF PACKETS ----------------
+
+model CaseVerification {
+  id               String   @id @default(cuid())
+  caseId           String
+  verifiedById     String
+
+  snapshotVersion  Int
+  verificationNote String?  @db.Text
+  verifiedAt       DateTime @default(now())
+
+  case             Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  verifiedBy       User     @relation("CaseVerifier", fields: [verifiedById], references: [id])
+
+  @@index([caseId, verifiedAt])
+}
+
+model PacketGeneration {
+  id           String   @id @default(cuid())
+  caseId       String
+  version      Int
+  storageKey   String   @unique
+  sha256       String
+  snapshotData Json
+  generatedAt  DateTime @default(now())
+
+  case         Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@unique([caseId, version])
+  @@index([caseId, generatedAt])
+}
+
+// ---------------- LAWYER CONSULTATIONS ----------------
+
+model ConsultationRequest {
+  id              String             @id @default(cuid())
+  citizenId       String
+  lawyerProfileId String
+  caseId          String?
+
+  preferredAt     DateTime?
+  scheduledAt     DateTime?
+  mode            ConsultationMode
+  status          ConsultationStatus @default(PENDING)
+
+  citizenMessage  String?            @db.Text
+  lawyerResponse  String?            @db.Text
+  meetingLink     String?
+  location        String?
+
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  completedAt     DateTime?
+
+  citizen         User               @relation("ConsultationCitizen", fields: [citizenId], references: [id])
+  lawyer          LawyerProfile      @relation(fields: [lawyerProfileId], references: [id])
+  case            Case?              @relation(fields: [caseId], references: [id])
+
+  @@index([citizenId, status])
+  @@index([lawyerProfileId, status])
+  @@index([scheduledAt])
+}
+
+// ---------------- CASE ACCESS PERMISSIONS ----------------
+
+model AccessGrant {
+  id              String        @id @default(cuid())
+  caseId          String
+  lawyerProfileId String
+  grantedById     String
+
+  canViewSummary  Boolean       @default(true)
+  canViewEvidence Boolean       @default(true)
+  canDownload     Boolean       @default(false)
+
+  grantedAt       DateTime      @default(now())
+  expiresAt       DateTime?
+  revokedAt       DateTime?
+
+  case            Case          @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  lawyer          LawyerProfile @relation(fields: [lawyerProfileId], references: [id], onDelete: Cascade)
+  grantedBy       User          @relation("GrantCreator", fields: [grantedById], references: [id])
+
+  @@index([caseId, lawyerProfileId, revokedAt])
+}
+
+// ---------------- LAWYER COLLABORATION ----------------
+
+model CaseComment {
+  id              String            @id @default(cuid())
+  caseId          String
+  authorId        String
+  lawyerProfileId String?
+  content         String            @db.Text
+  visibility      CommentVisibility @default(SHARED_WITH_CITIZEN)
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  case            Case              @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  author          User              @relation("CommentAuthor", fields: [authorId], references: [id])
+  lawyer          LawyerProfile?    @relation("LawyerComments", fields: [lawyerProfileId], references: [id])
+
+  @@index([caseId, createdAt])
+}
+
+model ActionItem {
+  id           String           @id @default(cuid())
+  caseId       String
+  createdById  String
+  assignedToId String?
+
+  title        String
+  description  String?          @db.Text
+  dueDate      DateTime?
+  status       ActionItemStatus @default(TODO)
+
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  completedAt  DateTime?
+
+  case         Case             @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  createdBy    User             @relation("ActionCreator", fields: [createdById], references: [id])
+  assignedTo   User?            @relation("ActionAssignee", fields: [assignedToId], references: [id])
+
+  @@index([caseId, status])
+  @@index([assignedToId, status])
+}
+
+// ---------------- NOTIFICATIONS & AUDIT ----------------
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String           @db.Text
+  link      String?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead, createdAt])
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  actorId      String?
+  action       String
+  resourceType String
+  resourceId   String
+  metadata     Json?
+  createdAt    DateTime @default(now())
+
+  actor        User?    @relation(fields: [actorId], references: [id])
+
+  @@index([actorId, action])
+  @@index([resourceType, resourceId])
+  @@index([createdAt])
+}

@@ -1,67 +1,94 @@
-import express, { Application, Request, Response, NextFunction } from 'express';
-import helmet from 'helmet';
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
-import rateLimit from 'express-rate-limit';
-import authRouter from './routes/auth';
-import guardDemoRouter from './routes/guardDemo';
+import express from "express";
+import cors from "cors";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import { env } from "./config/env.js";
+import { logger } from "./utils/logger.js";
+import { requestIdMiddleware } from "./middleware/requestId.js";
+import { errorHandler } from "./middleware/errorHandler.js";
+import { healthRouter } from "./routes/health.js";
+import { sendError } from "./utils/response.js";
 
-export function createApp(): Application {
-  const app = express();
+export const app = express();
 
-  // Security headers
-  app.use(helmet());
+// 1. Security & Perimeter Middleware
+app.use(helmet());
+app.use(
+  cors({
+    origin: env.CORS_ORIGIN === "*" ? true : env.CORS_ORIGIN.split(","),
+    credentials: true,
+  })
+);
 
-  // CORS for frontend origin
-  const clientOrigin = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
-  app.use(
-    cors({
-      origin: clientOrigin,
-      credentials: true,
-    })
-  );
+// 2. Request Identification & Parsing
+app.use(requestIdMiddleware);
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-  // Parsers
-  app.use(express.json());
-  app.use(cookieParser());
+// 3. Request Logging (skip /health and /ready in normal logging)
+app.use((req, res, next) => {
+  if (req.path === "/health" || req.path === "/ready") {
+    return next();
+  }
+  const start = Date.now();
+  res.on("finish", () => {
+    logger.info(
+      {
+        reqId: req.id,
+        method: req.method,
+        path: req.originalUrl,
+        statusCode: res.statusCode,
+        durationMs: Date.now() - start,
+      },
+      "Handled HTTP request"
+    );
+  });
+  next();
+});
 
-  // Rate limiting for auth routes (relaxed in tests to prevent flaky runs)
-  const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: process.env.NODE_ENV === 'test' ? 1000 : 20,
-    message: { message: 'Too many authentication attempts. Please try again later.' },
+// 4. Rate Limiting (disabled in test)
+if (env.NODE_ENV !== "test") {
+  const limiter = rateLimit({
+    windowMs: env.RATE_LIMIT_WINDOW_MS,
+    max: env.RATE_LIMIT_MAX,
     standardHeaders: true,
     legacyHeaders: false,
-    skip: () => process.env.NODE_ENV === 'test',
+    message: {
+      success: false,
+      message: "Too many requests, please try again later",
+      error: { code: "RATE_LIMIT_EXCEEDED", details: null },
+    },
   });
-
-  app.use('/api/auth/login', authLimiter);
-  app.use('/api/auth/register', authLimiter);
-
-  // Mount API Routers
-  app.use('/api/auth', authRouter);
-  app.use('/api', guardDemoRouter);
-
-  // Health check route
-  app.get('/api/health', (_req: Request, res: Response) => {
-    res.json({ status: 'ok', service: 'nyayapacket-ai-backend' });
-  });
-
-  // Global 404 handler for API routes
-  app.use('/api/*', (_req: Request, res: Response) => {
-    res.status(404).json({ message: 'API endpoint not found' });
-  });
-
-  // Global error handler
-  app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-    console.error('Unhandled server error:', err);
-    res.status(500).json({
-      message: 'An internal server error occurred.',
-      ...(process.env.NODE_ENV === 'development' ? { error: err.message } : {}),
-    });
-  });
-
-  return app;
+  app.use("/api/", limiter);
 }
 
-export default createApp;
+// 5. Mount Health & Readiness Probes
+app.use(healthRouter);
+app.use("/api/v1", healthRouter);
+
+// 6. Base API v1 Entry Route
+const v1Router = express.Router();
+v1Router.get("/", (_req, res) => {
+  res.json({
+    success: true,
+    message: "NyayaPacket AI API v1 Operational",
+    data: {
+      version: "1.0.0",
+      docs: "/api/v1/docs",
+    },
+  });
+});
+app.use("/api/v1", v1Router);
+
+// 7. 404 Route Catch-All
+app.use((req, res) => {
+  return sendError(
+    res,
+    "ROUTE_NOT_FOUND",
+    `Cannot ${req.method} ${req.originalUrl}`,
+    404
+  );
+});
+
+// 8. Global Centralized Error Handler
+app.use(errorHandler);
