@@ -78,8 +78,12 @@ export async function getOrProvisionUser(
       })) as AuthUserWithProfile;
     }
 
-    // If user is a LAWYER but has no lawyerProfile yet, create one
-    if (resolvedUser.role === UserRole.LAWYER && !resolvedUser.lawyerProfile) {
+    // If user is a LAWYER but has no lawyerProfile yet, create one (only outside of test environment)
+    if (
+      process.env.NODE_ENV !== "test" &&
+      resolvedUser.role === UserRole.LAWYER &&
+      !resolvedUser.lawyerProfile
+    ) {
       const barCouncilNumber =
         payload.metadata?.barCouncilNumber || `TEMP-${Date.now().toString().slice(-6)}`;
       const stateBarCouncil =

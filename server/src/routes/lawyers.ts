@@ -173,7 +173,8 @@ lawyersRouter.post("/me/profile", authenticate, async (req, res) => {
       },
     });
 
-    return sendSuccess(res, updatedProfile, "Lawyer profile saved successfully", existing ? 200 : 201);
+    const isFirstOnboarding = !existing || existing.barCouncilNumber.startsWith("TEMP-");
+    return sendSuccess(res, updatedProfile, "Lawyer profile saved successfully", isFirstOnboarding ? 201 : 200);
   } catch (err: any) {
     if (err.code === "P2002") {
       return sendError(res, "BAR_NUMBER_EXISTS", "Bar Council Number is already registered", 409);

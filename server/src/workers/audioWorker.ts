@@ -21,7 +21,7 @@ export async function processAudioTranscription(evidenceId: string, storageKey: 
       try {
         const presignedAudioUrl = await generatePresignedDownloadUrl(storageKey, 900);
         const response = await fetch(
-          "https://api.deepgram.com/v1/listen?model=nova-2&smart_format=true&punctuate=true",
+          "https://api.deepgram.com/v1/listen?model=nova-3&smart_format=true&punctuate=true",
           {
             method: "POST",
             headers: {
