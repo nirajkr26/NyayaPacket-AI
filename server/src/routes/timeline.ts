@@ -286,7 +286,7 @@ timelineRouter.delete("/:eventId", async (req, res) => {
  * POST /api/v1/cases/:caseId/verify
  * Citizen formally signs off and creates a CaseVerification snapshot
  */
-timelineRouter.post("/verify", async (req, res) => {
+export async function handleVerifyCase(req: any, res: any) {
   const params = req.params as Record<string, string>;
   const caseId = (params["caseId"] || params["id"]) as string;
   const user = req.user;
@@ -335,13 +335,15 @@ timelineRouter.post("/verify", async (req, res) => {
   } catch (err: any) {
     return sendError(res, "INTERNAL_SERVER_ERROR", err.message, 500);
   }
-});
+}
+
+timelineRouter.post("/verify", handleVerifyCase);
 
 /**
  * GET /api/v1/cases/:caseId/verifications
  * List verification snapshots for the case
  */
-timelineRouter.get("/verifications", async (req, res) => {
+export async function handleGetVerifications(req: any, res: any) {
   const params = req.params as Record<string, string>;
   const caseId = (params["caseId"] || params["id"]) as string;
   const user = req.user;
@@ -375,4 +377,6 @@ timelineRouter.get("/verifications", async (req, res) => {
   } catch (err: any) {
     return sendError(res, "INTERNAL_SERVER_ERROR", err.message, 500);
   }
-});
+}
+
+timelineRouter.get("/verifications", handleGetVerifications);

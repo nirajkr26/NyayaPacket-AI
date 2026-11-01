@@ -7,6 +7,7 @@ import { allowRoles } from "../middleware/rbac.js";
 import { canAccessCase } from "../services/authz/canAccessCase.js";
 import * as caseService from "../services/case/caseService.js";
 import { sendSuccess, sendError } from "../utils/response.js";
+import { handleVerifyCase, handleGetVerifications } from "./timeline.js";
 import { ValidationError, ForbiddenError, NotFoundError } from "../utils/errors.js";
 import { prisma } from "../lib/prisma.js";
 
@@ -166,3 +167,11 @@ casesRouter.patch("/:id", async (req: Request, res: Response, next: NextFunction
     next(err);
   }
 });
+/**
+ * Verification Snapshots on Cases directly
+ * POST /api/v1/cases/:id/verify
+ * GET /api/v1/cases/:id/verifications
+ */
+casesRouter.post("/:id/verify", handleVerifyCase);
+casesRouter.get("/:id/verifications", handleGetVerifications);
+

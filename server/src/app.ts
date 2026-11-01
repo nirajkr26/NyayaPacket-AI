@@ -106,7 +106,6 @@ app.use("/api/v1/cases/:caseId/packets", packetsRouter);
 app.use("/api/v1/cases/:caseId/grants", grantsRouter);
 app.use("/api/v1/cases/:caseId/comments", commentsRouter);
 app.use("/api/v1/cases/:caseId/action-items", actionItemsRouter);
-app.use("/api/v1/cases/:caseId", timelineRouter); // Supports POST /api/v1/cases/:caseId/verify and GET /api/v1/cases/:caseId/verifications
 app.use("/api/v1/lawyers", lawyersRouter);
 app.use("/api/v1/lawyers", lawyerWorkspaceRouter);
 app.use("/api/v1/admin/lawyers", adminLawyersRouter);
