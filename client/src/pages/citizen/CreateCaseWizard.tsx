@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
   Scale,
@@ -54,6 +54,9 @@ const CATEGORY_ICONS: Record<string, any> = {
 
 export function CreateCaseWizard() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const categoryParam = searchParams.get("category");
+
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -83,6 +86,21 @@ export function CreateCaseWizard() {
       return res.data || [];
     },
   });
+
+  useEffect(() => {
+    if (categoryParam && categories && categories.length > 0) {
+      const match = categories.find(
+        (c) =>
+          c.slug.toLowerCase().includes(categoryParam.toLowerCase()) ||
+          categoryParam.toLowerCase().includes(c.slug.toLowerCase()) ||
+          c.name.toLowerCase().includes(categoryParam.toLowerCase())
+      );
+      if (match && !selectedCategoryId) {
+        setSelectedCategoryId(match.id);
+        setCurrentStep(2);
+      }
+    }
+  }, [categoryParam, categories, selectedCategoryId]);
 
   const getCategoryIcon = (slug: string) => {
     for (const [key, icon] of Object.entries(CATEGORY_ICONS)) {

@@ -96,10 +96,12 @@ export function AdminDashboard() {
 
       {/* Core KPI Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="glass-card border-border">
+        <Card className="glass-card border-border/80 border-t-2 border-t-blue-500 hover:border-blue-500/50 transition-all shadow-md">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-bold text-muted-foreground uppercase">Registered Users</CardTitle>
-            <Users className="w-4 h-4 text-primary" />
+            <CardTitle className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Registered Users</CardTitle>
+            <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400">
+              <Users className="w-4 h-4" />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-black text-foreground">{metrics?.users?.total ?? 0}</div>
@@ -111,41 +113,47 @@ export function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="glass-card border-border">
+        <Card className="glass-card border-border/80 border-t-2 border-t-purple-500 hover:border-purple-500/50 transition-all shadow-md">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-bold text-muted-foreground uppercase">Total Cases</CardTitle>
-            <FolderLock className="w-4 h-4 text-accent" />
+            <CardTitle className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Total Cases</CardTitle>
+            <div className="p-2 rounded-lg bg-purple-500/10 text-purple-400">
+              <FolderLock className="w-4 h-4" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-black text-accent">{metrics?.cases?.total ?? 0}</div>
+            <div className="text-2xl font-black text-purple-400">{metrics?.cases?.total ?? 0}</div>
             <p className="text-[11px] text-muted-foreground mt-1">Total dispute ledgers created</p>
           </CardContent>
         </Card>
 
-        <Card className="glass-card border-border">
+        <Card className="glass-card border-border/80 border-t-2 border-t-emerald-500 hover:border-emerald-500/50 transition-all shadow-md">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-bold text-muted-foreground uppercase">Court Dossiers</CardTitle>
-            <Layers className="w-4 h-4 text-emerald-500" />
+            <CardTitle className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Court Dossiers</CardTitle>
+            <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
+              <Layers className="w-4 h-4" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
+            <div className="text-2xl font-black text-emerald-400">
               {metrics?.packets?.total ?? 0}
             </div>
             <p className="text-[11px] text-muted-foreground mt-1">PDF packets compiled with SHA-256</p>
           </CardContent>
         </Card>
 
-        <Card className="glass-card border-border">
+        <Card className="glass-card border-border/80 border-t-2 border-t-amber-500 hover:border-amber-500/50 transition-all shadow-md">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-bold text-muted-foreground uppercase">Advocates Pipeline</CardTitle>
-            <Award className="w-4 h-4 text-amber-500" />
+            <CardTitle className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Advocates Pipeline</CardTitle>
+            <div className="p-2 rounded-lg bg-amber-500/10 text-amber-400">
+              <Award className="w-4 h-4" />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-black text-foreground">{approvedLawyers}</div>
             <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-1">
-              <span className="text-emerald-600 font-semibold">{approvedLawyers} Verified</span>
+              <span className="text-emerald-500 font-semibold">{approvedLawyers} Verified</span>
               <span>•</span>
-              <span className="text-amber-500 font-semibold">{pendingLawyers} Pending</span>
+              <span className="text-amber-400 font-semibold">{pendingLawyers} Pending</span>
             </div>
           </CardContent>
         </Card>

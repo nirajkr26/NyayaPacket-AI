@@ -125,7 +125,7 @@ export function CaseDetailPage() {
       </div>
 
       {/* Case Header Dossier Banner */}
-      <Card className="glass-card border-border overflow-hidden relative">
+      <Card className="glass-card border-border/80 border-t-2 border-t-primary shadow-lg overflow-hidden relative">
         <CardContent className="p-6 sm:p-7 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
@@ -177,7 +177,7 @@ export function CaseDetailPage() {
             <Sparkles className="w-3.5 h-3.5" /> AI Interview
           </TabsTrigger>
           <TabsTrigger value="evidence" className="gap-1.5 text-xs py-2">
-            <FileText className="w-3.5 h-3.5" /> Evidence ({caseData.parties?.length || 0})
+            <FileText className="w-3.5 h-3.5" /> Evidence Vault
           </TabsTrigger>
           <TabsTrigger value="timeline" className="gap-1.5 text-xs py-2">
             <Calendar className="w-3.5 h-3.5" /> Timeline

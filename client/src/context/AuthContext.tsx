@@ -60,7 +60,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return null;
     }
   });
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(() => {
+    const hasToken = !!localStorage.getItem("nyayapacket_token");
+    const hasUser = !!localStorage.getItem("nyayapacket_user");
+    return hasToken && !hasUser;
+  });
 
   const login = (newToken: string, newUser: User) => {
     setToken(newToken);

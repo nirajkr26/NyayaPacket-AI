@@ -131,35 +131,48 @@ export function LawyerDashboard() {
   return (
     <div className="space-y-8">
       {/* Welcome Banner */}
-      <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-emerald-600/10 via-background to-primary/10 border border-border flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-2">
+      <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-emerald-600/10 via-background to-primary/10 border border-border/80 shadow-lg relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
               Advocate Workspace
             </h1>
-            <Badge variant="success" className="text-[10px]">
+            <Badge variant="success" className="text-[10px] px-2.5 py-0.5 gap-1 shadow-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               Bar Council Verified
             </Badge>
+            <Badge variant="outline" className="text-[10px] border-emerald-500/30 text-emerald-400 bg-emerald-500/5">
+              Status: Accepting Clients
+            </Badge>
           </div>
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            Review shared citizen court dossiers, accept consultation requests, and collaborate via privileged
-            dual-channel notes.
+          <p className="text-xs sm:text-sm text-muted-foreground max-w-2xl">
+            Review shared citizen court dossiers, manage booked legal consultations, and collaborate via privileged
+            dual-channel advisory notes.
           </p>
         </div>
 
-        <Link to="/lawyer/onboarding">
-          <Button variant="outline" size="sm" className="text-xs gap-1.5 font-bold">
-            Update Bar Roll & Practice Areas
-          </Button>
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link to="/lawyers">
+            <Button variant="outline" size="sm" className="text-xs gap-1.5 font-semibold bg-background/50 hover:bg-muted/50 border-border">
+              <Users className="w-3.5 h-3.5" /> View Public Directory
+            </Button>
+          </Link>
+          <Link to="/lawyer/onboarding">
+            <Button variant="default" size="sm" className="text-xs gap-1.5 font-bold shadow-md shadow-primary/20">
+              <Briefcase className="w-3.5 h-3.5" /> Bar Roll & Practice Areas
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="glass-card border-border">
+        <Card className="glass-card border-border/80 border-t-2 border-t-emerald-500 hover:border-emerald-500/50 transition-all shadow-md">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-bold text-muted-foreground uppercase">Shared Client Cases</CardTitle>
-            <FolderLock className="w-4 h-4 text-emerald-600" />
+            <CardTitle className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Shared Client Cases</CardTitle>
+            <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
+              <FolderLock className="w-4 h-4" />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-black text-foreground">{sharedCases?.length ?? 0}</div>
@@ -167,24 +180,33 @@ export function LawyerDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="glass-card border-border">
+        <Card className="glass-card border-border/80 border-t-2 border-t-amber-500 hover:border-amber-500/50 transition-all shadow-md">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-bold text-muted-foreground uppercase">Pending Consultations</CardTitle>
-            <Clock className="w-4 h-4 text-amber-500" />
+            <CardTitle className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Pending Consultations</CardTitle>
+            <div className="p-2 rounded-lg bg-amber-500/10 text-amber-400">
+              <Clock className="w-4 h-4" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-black text-amber-500">{pendingConsults.length}</div>
+            <div className="text-2xl font-black text-amber-500 flex items-center gap-2">
+              {pendingConsults.length}
+              {pendingConsults.length > 0 && (
+                <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping inline-block" />
+              )}
+            </div>
             <p className="text-[11px] text-muted-foreground mt-1">Awaiting your response</p>
           </CardContent>
         </Card>
 
-        <Card className="glass-card border-border">
+        <Card className="glass-card border-border/80 border-t-2 border-t-blue-500 hover:border-blue-500/50 transition-all shadow-md">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-bold text-muted-foreground uppercase">Confirmed Sessions</CardTitle>
-            <Calendar className="w-4 h-4 text-primary" />
+            <CardTitle className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Confirmed Sessions</CardTitle>
+            <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400">
+              <Calendar className="w-4 h-4" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-black text-primary">{confirmedConsults.length}</div>
+            <div className="text-2xl font-black text-blue-400">{confirmedConsults.length}</div>
             <p className="text-[11px] text-muted-foreground mt-1">Scheduled advisory appointments</p>
           </CardContent>
         </Card>
@@ -210,10 +232,25 @@ export function LawyerDashboard() {
 
         <CardContent>
           {consultsLoading ? (
-            <div className="h-24 bg-muted/30 rounded-xl animate-pulse" />
+            <div className="h-28 bg-muted/20 rounded-xl animate-pulse flex items-center justify-center">
+              <span className="text-xs text-muted-foreground">Loading consultations...</span>
+            </div>
           ) : !consultations || consultations.length === 0 ? (
-            <div className="p-8 text-center border border-dashed rounded-xl text-xs text-muted-foreground">
-              No consultation requests received yet. Ensure your profile is published in the directory.
+            <div className="py-10 px-6 text-center rounded-xl bg-card/40 border border-border/60 flex flex-col items-center justify-center space-y-3">
+              <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                <Calendar className="w-6 h-6" />
+              </div>
+              <div className="space-y-1 max-w-sm">
+                <h4 className="text-sm font-bold text-foreground">No Consultation Requests Yet</h4>
+                <p className="text-xs text-muted-foreground">
+                  When citizens search the advocate directory and book a session with you, their requests will appear here with instant accept/decline controls.
+                </p>
+              </div>
+              <Link to="/lawyers">
+                <Button variant="outline" size="sm" className="text-xs gap-1.5 font-medium mt-2">
+                  <Users className="w-3.5 h-3.5" /> Check Your Public Directory Listing
+                </Button>
+              </Link>
             </div>
           ) : (
             <div className="space-y-3">
@@ -314,11 +351,20 @@ export function LawyerDashboard() {
 
         <CardContent>
           {sharedLoading ? (
-            <div className="h-24 bg-muted/30 rounded-xl animate-pulse" />
+            <div className="h-28 bg-muted/20 rounded-xl animate-pulse flex items-center justify-center">
+              <span className="text-xs text-muted-foreground">Loading shared dossiers...</span>
+            </div>
           ) : !sharedCases || sharedCases.length === 0 ? (
-            <div className="p-8 text-center border border-dashed rounded-xl text-xs text-muted-foreground">
-              No cases currently shared with your advocate roll. Once clients book consultations and issue access grants,
-              dossiers appear here.
+            <div className="py-10 px-6 text-center rounded-xl bg-card/40 border border-border/60 flex flex-col items-center justify-center space-y-3">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                <FolderLock className="w-6 h-6" />
+              </div>
+              <div className="space-y-1 max-w-sm">
+                <h4 className="text-sm font-bold text-foreground">No Shared Cases Yet</h4>
+                <p className="text-xs text-muted-foreground">
+                  When citizens grant you cryptographically scoped access to their case dossiers, they will appear here with instant access to claims, chronologies, and evidence vaults.
+                </p>
+              </div>
             </div>
           ) : (
             <div className="space-y-3">

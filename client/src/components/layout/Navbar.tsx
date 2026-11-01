@@ -27,7 +27,7 @@ export function Navbar() {
     if (!user) return "/login";
     if (user.role === "ADMIN") return "/admin/dashboard";
     if (user.role === "LAWYER") return "/lawyer/dashboard";
-    return "/citizen/dashboard";
+    return "/dashboard";
   };
 
   return (
