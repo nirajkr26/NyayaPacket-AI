@@ -140,15 +140,15 @@ Status Legend:
 ---
 
 ## Phase 9: Lawyer Verification & Public Directory
-- [ ] Implement Lawyer Onboarding Profile completion (`POST /api/v1/lawyers/profile`).
-- [ ] Implement Verification Document upload (Enrollment Certificate, Bar ID).
-- [ ] Implement Admin Lawyer Verification Queue (`GET /api/v1/admin/lawyers/pending`).
-- [ ] Implement Admin Document Review & Decision endpoint (`PATCH /api/v1/admin/lawyers/:id/verification`).
-- [ ] Implement Public Lawyer Directory with search, location, practice area, and language filters (`GET /api/v1/lawyers`).
-- [ ] Ensure only `APPROVED` and `isListed: true` lawyers appear in directory.
-- [ ] Implement Public Lawyer Profile view (`GET /api/v1/lawyers/:id`).
-- [ ] Implement Lawyer Availability schedule management (`PUT /api/v1/lawyers/me/availability`).
-- [ ] Integration tests verifying unapproved lawyers are strictly excluded from directory.
+- [x] Implement Lawyer Onboarding Profile completion (`POST /api/v1/lawyers/profile`).
+- [x] Implement Verification Document upload (Enrollment Certificate, Bar ID).
+- [x] Implement Admin Lawyer Verification Queue (`GET /api/v1/admin/lawyers/pending`).
+- [x] Implement Admin Document Review & Decision endpoint (`PATCH /api/v1/admin/lawyers/:id/verification`).
+- [x] Implement Public Lawyer Directory with search, location, practice area, and language filters (`GET /api/v1/lawyers`).
+- [x] Ensure only `APPROVED` and `isListed: true` lawyers appear in directory.
+- [x] Implement Public Lawyer Profile view (`GET /api/v1/lawyers/:id`).
+- [x] Implement Lawyer Availability schedule management (`PUT /api/v1/lawyers/me/availability`).
+- [x] Integration tests verifying unapproved lawyers are strictly excluded from directory.
 
 ---
 
