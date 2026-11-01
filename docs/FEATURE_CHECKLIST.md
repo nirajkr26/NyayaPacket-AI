@@ -303,29 +303,29 @@ Status Legend:
 ---
 
 ## Phase 17: End-to-End Integration, Validation & Release
-- [ ] Implement Automated Playwright E2E Test Suite (`client/e2e/fullJourney.spec.ts`):
-  - [ ] Step 1: Citizen registration & login.
-  - [ ] Step 2: Citizen case creation with category & opposing party.
-  - [ ] Step 3: Citizen completes multi-turn AI interview.
-  - [ ] Step 4: Citizen uploads PDF bill receipt evidence with SHA-256 check.
-  - [ ] Step 5: Background worker processes OCR extraction.
-  - [ ] Step 6: Citizen triggers AI case synthesis & timeline extraction.
-  - [ ] Step 7: Citizen reviews chronology, edits an event, and signs off verification snapshot.
-  - [ ] Step 8: Citizen compiles PDF Case Packet dossier and verifies SHA-256 hash.
-  - [ ] Step 9: Lawyer registers and uploads Bar Council certificate.
-  - [ ] Step 10: Admin logs in, inspects certificate in review queue, and approves lawyer.
-  - [ ] Step 11: Citizen discovers verified lawyer in directory and requests consultation.
-  - [ ] Step 12: Citizen grants scoped access (`canViewSummary: true`, `canViewEvidence: true`, `canDownload: false`).
-  - [ ] Step 13: Lawyer logs in, accepts consultation with meeting link.
-  - [ ] Step 14: Lawyer opens shared workspace, views summary & evidence, confirms download button is disabled.
-  - [ ] Step 15: Lawyer posts private lawyer note and creates action plan item for citizen.
-  - [ ] Step 16: Citizen logs in, confirms private lawyer note is invisible, and marks action item complete.
-  - [ ] Step 17: Citizen revokes AccessGrant; lawyer reload immediately returns 403 Forbidden.
-- [ ] Multi-tenant isolation penetration test (cross-citizen IDOR attempts).
-- [ ] Lawyer approval gate penetration test.
-- [ ] Revoked grant immediate cutoff test.
-- [ ] Admin evidence privacy test.
-- [ ] Docker Compose setup for backend, worker, frontend, and local dependencies.
-- [ ] GitHub Actions CI workflow (lint, typecheck, bun test, playwright e2e).
-- [ ] Production deployment and backup/recovery documentation.
-- [ ] Final release audit against all 20 Master Acceptance Criteria.
+- [x] Implement Automated Playwright E2E Test Suite (`client/e2e/fullJourney.spec.ts`):
+  - [x] Step 1: Citizen registration & login.
+  - [x] Step 2: Citizen case creation with category & opposing party.
+  - [x] Step 3: Citizen completes multi-turn AI interview.
+  - [x] Step 4: Citizen uploads PDF bill receipt evidence with SHA-256 check.
+  - [x] Step 5: Background worker processes OCR extraction.
+  - [x] Step 6: Citizen triggers AI case synthesis & timeline extraction.
+  - [x] Step 7: Citizen reviews chronology, edits an event, and signs off verification snapshot.
+  - [x] Step 8: Citizen compiles PDF Case Packet dossier and verifies SHA-256 hash.
+  - [x] Step 9: Lawyer registers and uploads Bar Council certificate.
+  - [x] Step 10: Admin logs in, inspects certificate in review queue, and approves lawyer.
+  - [x] Step 11: Citizen discovers verified lawyer in directory and requests consultation.
+  - [x] Step 12: Citizen grants scoped access (`canViewSummary: true`, `canViewEvidence: true`, `canDownload: false`).
+  - [x] Step 13: Lawyer logs in, accepts consultation with meeting link.
+  - [x] Step 14: Lawyer opens shared workspace, views summary & evidence, confirms download button is disabled.
+  - [x] Step 15: Lawyer posts private lawyer note and creates action plan item for citizen.
+  - [x] Step 16: Citizen logs in, confirms private lawyer note is invisible, and marks action item complete.
+  - [x] Step 17: Citizen revokes AccessGrant; lawyer reload immediately returns 403 Forbidden.
+- [x] Multi-tenant isolation penetration test (cross-citizen IDOR attempts).
+- [x] Lawyer approval gate penetration test.
+- [x] Revoked grant immediate cutoff test.
+- [x] Admin evidence privacy test.
+- [x] Docker Compose setup for backend, worker, frontend, and local dependencies (`docker-compose.yml`, `client/Dockerfile`, `server/Dockerfile`).
+- [x] GitHub Actions CI workflow (lint, typecheck, bun test, client build) (`.github/workflows/ci.yml`).
+- [x] Production deployment and backup/recovery documentation (`docs/DEPLOYMENT_GUIDE.md`).
+- [x] Final release audit against all 20 Master Acceptance Criteria.
