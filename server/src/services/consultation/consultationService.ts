@@ -2,9 +2,11 @@ import {
   ConsultationMode,
   ConsultationStatus,
   LawyerVerificationStatus,
+  NotificationType,
 } from "@prisma/client";
 import { prisma } from "../../lib/prisma.js";
 import { logger } from "../../utils/logger.js";
+import { createNotification } from "../notification/notificationService.js";
 
 export interface CreateConsultationParams {
   citizenId: string;
@@ -89,6 +91,16 @@ export async function createConsultationRequest(params: CreateConsultationParams
     },
   });
 
+  if (lawyer.userId) {
+    await createNotification({
+      userId: lawyer.userId,
+      type: NotificationType.CONSULTATION,
+      title: "New Legal Consultation Request",
+      message: `You have received a new consultation request (${params.mode}).`,
+      link: "/lawyer/consultations",
+    }).catch((err) => logger.warn({ err: err.message }, "Could not trigger consultation request notification"));
+  }
+
   logger.info({ consultationId: consultation.id, citizenId: params.citizenId }, "Consultation request created");
 
   return consultation;
@@ -130,6 +142,16 @@ export async function respondToConsultation(params: RespondConsultationParams) {
     },
   });
 
+  if (updated.citizenId) {
+    await createNotification({
+      userId: updated.citizenId,
+      type: NotificationType.CONSULTATION,
+      title: `Consultation Request ${params.status}`,
+      message: `Advocate has updated your consultation request to: ${params.status}.`,
+      link: updated.caseId ? `/dashboard/cases/${updated.caseId}` : "/dashboard",
+    }).catch((err) => logger.warn({ err: err.message }, "Could not trigger consultation response notification"));
+  }
+
   logger.info({ consultationId: updated.id, status: params.status }, "Consultation response recorded");
 
   return updated;
@@ -139,7 +161,7 @@ export async function createCaseAccessGrant(params: CreateGrantParams) {
   // 1. Verify citizen owns the case
   const caseRecord = await prisma.case.findUnique({
     where: { id: params.caseId },
-    select: { ownerId: true },
+    select: { ownerId: true, caseNumber: true },
   });
 
   if (!caseRecord || caseRecord.ownerId !== params.citizenId) {
@@ -182,6 +204,16 @@ export async function createCaseAccessGrant(params: CreateGrantParams) {
       },
     },
   });
+
+  if (lawyer.userId) {
+    await createNotification({
+      userId: lawyer.userId,
+      type: NotificationType.CASE_UPDATE,
+      title: "Case Access Granted",
+      message: `You have been granted access to review case ${caseRecord.caseNumber || ""}.`,
+      link: `/lawyer/cases/${params.caseId}`,
+    }).catch((err) => logger.warn({ err: err.message }, "Could not trigger access grant notification"));
+  }
 
   logger.info({ grantId: grant.id, caseId: params.caseId, lawyerProfileId: params.lawyerProfileId }, "Access grant issued");
 

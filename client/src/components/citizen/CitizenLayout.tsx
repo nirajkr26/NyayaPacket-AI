@@ -18,6 +18,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import { Button } from "../ui/Button";
 import { Badge } from "../ui/Badge";
+import { NotificationBell } from "../layout/NotificationBell";
 import { cn } from "../../lib/utils";
 
 export function CitizenLayout() {
@@ -199,14 +200,7 @@ export function CitizenLayout() {
             >
               {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
-            <Link to="/dashboard">
-              <button
-                className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors relative"
-                title="Notifications"
-              >
-                <Bell className="w-4 h-4" />
-              </button>
-            </Link>
+            <NotificationBell />
             <Link to="/dashboard/cases/new">
               <Button size="sm" variant="default" className="text-xs gap-1.5 h-8">
                 <PlusCircle className="w-3.5 h-3.5" /> Start New Case

@@ -21,6 +21,7 @@ import { api } from "../../lib/apiClient";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import { Badge } from "../ui/Badge";
+import { NotificationBell } from "../layout/NotificationBell";
 import { cn } from "../../lib/utils";
 
 export function LawyerLayout() {
@@ -224,6 +225,7 @@ export function LawyerLayout() {
           </div>
 
           <div className="flex items-center gap-3">
+            <NotificationBell />
             <button
               onClick={toggleTheme}
               className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"

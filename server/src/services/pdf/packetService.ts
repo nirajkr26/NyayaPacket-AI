@@ -2,9 +2,11 @@ import {
   AiRunType,
   CaseStatus,
   ProcessingStatus,
+  NotificationType,
 } from "@prisma/client";
 import { prisma } from "../../lib/prisma.js";
 import { logger } from "../../utils/logger.js";
+import { createNotification } from "../notification/notificationService.js";
 import { generateCasePacketPdf } from "./pdfGenerator.js";
 import type { PacketTemplateData } from "./templates/packetTemplate.js";
 
@@ -186,6 +188,17 @@ export async function generateCasePacket(caseId: string, _triggeredById?: string
         note: `Generated Case Packet Dossier v${nextVersion}. Case is ready for lawyer consultation.`,
       },
     });
+  }
+
+  
+  if (caseRecord.ownerId) {
+    await createNotification({
+      userId: caseRecord.ownerId,
+      type: NotificationType.CASE_UPDATE,
+      title: "Case Packet Dossier Ready",
+      message: `Legal case packet dossier v${nextVersion} has been generated and sealed.`,
+      link: `/dashboard/cases/${caseId}`,
+    }).catch((err) => logger.warn({ err: err.message }, "Could not trigger packet generation notification"));
   }
 
   logger.info({ caseId, version: nextVersion, packetId: packet.id }, "Case packet generated successfully");

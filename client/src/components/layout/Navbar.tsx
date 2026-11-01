@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import { Button } from "../ui/Button";
+import { NotificationBell } from "./NotificationBell";
 import {
   Scale,
   Sun,
@@ -79,6 +80,9 @@ export function Navbar() {
 
         {/* Action Controls */}
         <div className="hidden md:flex items-center gap-3">
+          {/* Notification Bell */}
+          {isAuthenticated && user && <NotificationBell />}
+
           {/* Theme Toggle */}
           <Button
             variant="ghost"
@@ -97,7 +101,7 @@ export function Navbar() {
                 className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm font-medium hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800 transition-colors"
               >
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-900 text-xs font-bold text-white dark:bg-slate-100 dark:text-slate-900">
-                  {user.fullName.charAt(0).toUpperCase()}
+                  {((user.fullName && user.fullName.charAt(0)) || (user.email && user.email.charAt(0)) || "U").toUpperCase()}
                 </div>
                 <div className="text-left hidden lg:block">
                   <p className="text-xs font-semibold leading-tight text-slate-900 dark:text-white">
