@@ -106,18 +106,37 @@ export function EvidenceManager({ caseId }: { caseId: string }) {
       const { uploadUrl, storageKey } = presignedRes.data!;
       setUploadProgress(50);
 
-      // 3. Upload binary directly to S3 via presigned PUT URL
-      await axios.put(uploadUrl, file, {
-        headers: {
-          "Content-Type": file.type || "application/octet-stream",
-        },
-        onUploadProgress: (progressEvent) => {
-          if (progressEvent.total) {
-            const pct = Math.round(50 + (progressEvent.loaded / progressEvent.total) * 40);
-            setUploadProgress(pct);
+      // 3. Upload binary directly to S3 via presigned PUT URL (with server-relay fallback)
+      try {
+        await axios.put(uploadUrl, file, {
+          headers: {
+            "Content-Type": file.type || "application/octet-stream",
+          },
+          onUploadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              const pct = Math.round(50 + (progressEvent.loaded / progressEvent.total) * 40);
+              setUploadProgress(pct);
+            }
+          },
+        });
+      } catch (s3Err) {
+        console.warn("Direct S3 upload preflight failed or blocked; falling back to server-relay upload", s3Err);
+        await api.post(
+          `/cases/${caseId}/evidence/upload-relay?storageKey=${encodeURIComponent(storageKey)}`,
+          file,
+          {
+            headers: {
+              "Content-Type": file.type || "application/octet-stream",
+            },
+            onUploadProgress: (progressEvent) => {
+              if (progressEvent.total) {
+                const pct = Math.round(50 + (progressEvent.loaded / progressEvent.total) * 40);
+                setUploadProgress(pct);
+              }
+            },
           }
-        },
-      });
+        );
+      }
 
       setUploadProgress(90);
 

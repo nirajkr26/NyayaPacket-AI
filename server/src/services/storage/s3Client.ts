@@ -3,7 +3,7 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { env } from "../../config/env.js";
 import { logger } from "../../utils/logger.js";
 
-const BUCKET_NAME = process.env.S3_BUCKET_NAME || "br-aged-thunder-b33nrofn";
+const BUCKET_NAME = env.S3_BUCKET_NAME || "nyayapacket-ai";
 
 export const s3Client = new S3Client({
   endpoint: env.AWS_ENDPOINT_URL_S3,

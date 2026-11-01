@@ -22,6 +22,7 @@ const envSchema = z.object({
   AWS_ACCESS_KEY_ID: z.string().optional(),
   AWS_SECRET_ACCESS_KEY: z.string().optional(),
   AWS_REGION: z.string().default("auto"),
+  S3_BUCKET_NAME: z.string().default("nyayapacket-ai"),
   GEMINI_API_KEY: z.string().optional(),
   DEEPGRAM_API_KEY: z.string().optional(),
   CORS_ORIGIN: z.string().default("*"),

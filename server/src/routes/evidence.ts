@@ -1,4 +1,4 @@
-import { Router } from "express";
+import express, { Router } from "express";
 import type { Request, Response, NextFunction } from "express";
 import { z } from "zod";
 import crypto from "crypto";
@@ -10,6 +10,7 @@ import {
   generatePresignedUploadUrl,
   generatePresignedDownloadUrl,
   verifyObjectExists,
+  uploadBufferToS3,
 } from "../services/storage/s3Client.js";
 import { enqueueEvidenceProcessing } from "../queues/evidenceQueue.js";
 import { prisma } from "../lib/prisma.js";
@@ -61,7 +62,8 @@ const uploadCompleteSchema = z.object({
  */
 evidenceRouter.post("/upload-url", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const caseId = req.params.caseId as string;
+    const params = req.params as Record<string, string>;
+    const caseId = (params["caseId"] || params["id"]) as string;
     const access = await canAccessCase({
       user: req.user!,
       caseId,
@@ -89,6 +91,44 @@ evidenceRouter.post("/upload-url", async (req: Request, res: Response, next: Nex
     next(err);
   }
 });
+
+/**
+ * POST /api/v1/cases/:caseId/evidence/upload-relay
+ * Fallback direct binary upload via server when client browser preflight is restricted
+ */
+evidenceRouter.post(
+  "/upload-relay",
+  express.raw({ type: "*/*", limit: "100mb" }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const params = req.params as Record<string, string>;
+      const caseId = (params["caseId"] || params["id"]) as string;
+      const storageKey = req.query["storageKey"] as string;
+      const mimeType = (req.headers["content-type"] as string) || "application/octet-stream";
+
+      if (!storageKey) {
+        throw new ValidationError("Missing storageKey query parameter");
+      }
+
+      const access = await canAccessCase({
+        user: req.user!,
+        caseId,
+        scope: "VIEW_EVIDENCE",
+      });
+
+      if (!access.allowed || (access.caseData?.ownerId !== req.user!.id && req.user!.role !== "ADMIN")) {
+        throw new ForbiddenError("Only case owner may upload evidence", "CASE_ACCESS_DENIED");
+      }
+
+      const buffer = Buffer.isBuffer(req.body) ? req.body : Buffer.from(req.body);
+      await uploadBufferToS3(storageKey, buffer, mimeType);
+
+      return sendSuccess(res, { storageKey, success: true }, "File uploaded to storage via relay");
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
 /**
  * POST /api/v1/cases/:caseId/evidence/complete
