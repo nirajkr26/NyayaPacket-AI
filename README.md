@@ -107,8 +107,8 @@ Comprehensive documentation is maintained in the [`docs/`](docs/) directory:
 - [x] **Phase 8: PDF Case Packet Generation** (Completed)
 - [x] **Phase 9: Lawyer Verification & Public Directory** (Completed)
 - [x] **Phase 10: Consultations & Case Sharing** (Completed)
-- [ ] **Phase 11: Lawyer Collaboration Workspace** (In Progress)
-- [ ] **Phase 12: Notifications & Admin Backend**
+- [x] **Phase 11: Lawyer Collaboration Workspace** (Completed)
+- [ ] **Phase 12: Notifications & Admin Backend** (In Progress)
 - [ ] **Phase 13: Frontend Foundation & Public Website**
 - [ ] **Phase 14: Citizen Portal Frontend**
 - [ ] **Phase 15: Lawyer Portal Frontend**

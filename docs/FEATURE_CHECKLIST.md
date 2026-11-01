@@ -166,14 +166,14 @@ Status Legend:
 ---
 
 ## Phase 11: Lawyer Collaboration Workspace
-- [ ] Implement Lawyer Shared Case detail workspace view (`GET /api/v1/lawyers/me/shared-cases/:id`).
-- [ ] Implement Case Comments creation with visibility flag (`POST /api/v1/cases/:id/comments`).
-- [ ] Enforce visibility rules: Citizen cannot view `PRIVATE_LAWYER_NOTE`.
-- [ ] Implement Case Comments retrieval (`GET /api/v1/cases/:id/comments`).
-- [ ] Implement Information Request flow (`POST /api/v1/cases/:id/information-requests`).
-- [ ] Implement Action Plan & Action Items management (`POST /api/v1/cases/:id/action-items`).
-- [ ] Implement Action Item status update & completion tracking (`PATCH /api/v1/cases/:id/action-items/:itemId`).
-- [ ] Tests verifying note visibility privacy and action item permissions.
+- [x] Implement Lawyer Shared Case detail workspace view (`GET /api/v1/lawyers/me/shared-cases/:id`).
+- [x] Implement Case Comments creation with visibility flag (`POST /api/v1/cases/:id/comments`).
+- [x] Enforce visibility rules: Citizen cannot view `PRIVATE_LAWYER_NOTE`.
+- [x] Implement Case Comments retrieval (`GET /api/v1/cases/:id/comments`).
+- [x] Implement Information Request flow (`POST /api/v1/cases/:id/information-requests`).
+- [x] Implement Action Plan & Action Items management (`POST /api/v1/cases/:id/action-items`).
+- [x] Implement Action Item status update & completion tracking (`PATCH /api/v1/cases/:id/action-items/:itemId`).
+- [x] Tests verifying note visibility privacy and action item permissions.
 
 ---
 
