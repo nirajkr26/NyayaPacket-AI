@@ -57,13 +57,13 @@ Status Legend:
 ---
 
 ## Phase 3: Authorization & Security Foundation
-- [ ] Implement RBAC middleware: `requireActiveUser`, `allowRoles(...)`, `requireApprovedLawyer`, `requireAdmin`.
-- [ ] Implement centralized resource authorization service: `canAccessCase(user, caseId, scope)`.
-- [ ] Implement granular permission scopes (`VIEW_CASE_SUMMARY`, `VIEW_TIMELINE`, `VIEW_EVIDENCE`, `DOWNLOAD_EVIDENCE`, `COMMENT_ON_CASE`, `REQUEST_INFORMATION`, `MANAGE_ACTION_ITEMS`).
-- [ ] Implement `AccessGrant` evaluation with real-time revocation and expiry checking.
-- [ ] Implement Admin privacy guard (block evidence download access for admins by default).
-- [ ] Implement `AuditLog` service capturing actor, action, resource, IP, user-agent, and metadata.
-- [ ] Security test suite (SEC-01 through SEC-13): IDOR, privilege escalation, unapproved lawyer access, revoked grants, admin evidence blocking.
+- [x] Implement RBAC middleware: `requireActiveUser`, `allowRoles(...)`, `requireApprovedLawyer`, `requireAdmin`.
+- [x] Implement centralized resource authorization service: `canAccessCase(user, caseId, scope)`.
+- [x] Implement granular permission scopes (`VIEW_CASE_SUMMARY`, `VIEW_TIMELINE`, `VIEW_EVIDENCE`, `DOWNLOAD_EVIDENCE`, `COMMENT_ON_CASE`, `REQUEST_INFORMATION`, `MANAGE_ACTION_ITEMS`).
+- [x] Implement `AccessGrant` evaluation with real-time revocation and expiry checking.
+- [x] Implement Admin privacy guard (block evidence download access for admins by default).
+- [x] Implement `AuditLog` service capturing actor, action, resource, IP, user-agent, and metadata.
+- [x] Security test suite (SEC-01 through SEC-14): IDOR, privilege escalation, unapproved lawyer access, revoked grants, admin evidence blocking.
 
 ---
 
