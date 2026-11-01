@@ -25,6 +25,8 @@ import { grantsRouter } from "./routes/grants.js";
 import { lawyerWorkspaceRouter } from "./routes/lawyerWorkspace.js";
 import { commentsRouter } from "./routes/comments.js";
 import { actionItemsRouter } from "./routes/actionItems.js";
+import { notificationsRouter } from "./routes/notifications.js";
+import { adminRouter } from "./routes/admin.js";
 import { sendError } from "./utils/response.js";
 
 export const app = express();
@@ -103,7 +105,9 @@ app.use("/api/v1/cases/:caseId", timelineRouter); // Supports POST /api/v1/cases
 app.use("/api/v1/lawyers", lawyersRouter);
 app.use("/api/v1/lawyers", lawyerWorkspaceRouter);
 app.use("/api/v1/admin/lawyers", adminLawyersRouter);
+app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/consultations", consultationsRouter);
+app.use("/api/v1/notifications", notificationsRouter);
 
 // 7. Base API v1 Entry Route
 const v1Router = express.Router();

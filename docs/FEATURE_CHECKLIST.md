@@ -178,15 +178,15 @@ Status Legend:
 ---
 
 ## Phase 12: Notifications & Admin Portal Backend
-- [ ] Implement In-app Notification engine and listing API (`GET /api/v1/notifications`).
-- [ ] Implement Notification read-status update (`PATCH /api/v1/notifications/:id/read`).
-- [ ] Implement Notification preferences management (`GET`, `PUT /api/v1/notifications/preferences`).
-- [ ] Implement Admin Dashboard Metrics endpoint (`GET /api/v1/admin/dashboard/metrics`).
-- [ ] Implement Admin User Management (list, suspend, reactivate) (`GET`, `PATCH /api/v1/admin/users`).
-- [ ] Implement Admin Case Metadata Monitoring (`GET /api/v1/admin/cases`).
-- [ ] Implement Admin BullMQ Job Queue monitoring (`GET /api/v1/admin/jobs/status`).
-- [ ] Implement Admin System Audit Logs viewer (`GET /api/v1/admin/audit-logs`).
-- [ ] Tests verifying admin metadata-only visibility and user suspension enforcement.
+- [x] Implement In-app Notification engine and listing API (`GET /api/v1/notifications`).
+- [x] Implement Notification read-status update (`PATCH /api/v1/notifications/:id/read`).
+- [x] Implement Notification preferences management (`GET`, `PUT /api/v1/notifications/preferences`).
+- [x] Implement Admin Dashboard Metrics endpoint (`GET /api/v1/admin/dashboard/metrics`).
+- [x] Implement Admin User Management (list, suspend, reactivate) (`GET`, `PATCH /api/v1/admin/users`).
+- [x] Implement Admin Case Metadata Monitoring (`GET /api/v1/admin/cases`).
+- [x] Implement Admin BullMQ Job Queue monitoring (`GET /api/v1/admin/jobs/status`).
+- [x] Implement Admin System Audit Logs viewer (`GET /api/v1/admin/audit-logs`).
+- [x] Tests verifying admin metadata-only visibility and user suspension enforcement.
 
 ---
 
