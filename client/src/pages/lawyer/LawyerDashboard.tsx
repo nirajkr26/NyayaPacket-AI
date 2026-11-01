@@ -88,7 +88,7 @@ export function LawyerDashboard() {
   >({
     queryKey: ["lawyer-consultations"],
     queryFn: async () => {
-      const res = await api.get<ConsultationItem[]>("/consultations/my");
+      const res = await api.get<ConsultationItem[]>("/consultations/lawyer");
       return res.data || [];
     },
   });
