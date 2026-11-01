@@ -35,8 +35,10 @@ evidenceWorker.on("failed", (job, err) => {
 });
 
 import { createAiAnalysisWorker } from "./workers/aiAnalysisWorker.js";
+import { createPdfWorker } from "./workers/pdfWorker.js";
 
 export const aiAnalysisWorker = createAiAnalysisWorker();
+export const pdfWorker = createPdfWorker();
 
 // Graceful shutdown
 const signals: NodeJS.Signals[] = ["SIGTERM", "SIGINT"];
@@ -46,6 +48,7 @@ for (const signal of signals) {
     await Promise.all([
       evidenceWorker.close(),
       aiAnalysisWorker.close(),
+      pdfWorker.close(),
     ]);
     process.exit(0);
   });

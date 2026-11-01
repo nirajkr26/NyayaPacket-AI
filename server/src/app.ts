@@ -17,6 +17,7 @@ import { statementsRouter } from "./routes/statements.js";
 import { evidenceRouter } from "./routes/evidence.js";
 import { aiRouter } from "./routes/ai.js";
 import { timelineRouter } from "./routes/timeline.js";
+import { packetsRouter } from "./routes/packets.js";
 import { sendError } from "./utils/response.js";
 
 export const app = express();
@@ -87,6 +88,7 @@ app.use("/api/v1/cases/:caseId/statements", statementsRouter);
 app.use("/api/v1/cases/:caseId/evidence", evidenceRouter);
 app.use("/api/v1/cases/:caseId/ai", aiRouter);
 app.use("/api/v1/cases/:caseId/timeline", timelineRouter);
+app.use("/api/v1/cases/:caseId/packets", packetsRouter);
 app.use("/api/v1/cases/:caseId", timelineRouter); // Supports POST /api/v1/cases/:caseId/verify and GET /api/v1/cases/:caseId/verifications
 
 // 7. Base API v1 Entry Route

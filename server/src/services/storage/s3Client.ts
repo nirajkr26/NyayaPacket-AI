@@ -65,6 +65,31 @@ export async function generatePresignedDownloadUrl(
   return getSignedUrl(s3Client, command, { expiresIn: expiresInSeconds });
 }
 
+export async function uploadBufferToS3(
+  storageKey: string,
+  buffer: Buffer,
+  mimeType = "application/pdf"
+): Promise<{ success: boolean; storageKey: string }> {
+  if (env.NODE_ENV === "test") {
+    logger.debug({ storageKey }, "Simulating buffer upload in test mode");
+    return { success: true, storageKey };
+  }
+
+  try {
+    const command = new PutObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: storageKey,
+      Body: buffer,
+      ContentType: mimeType,
+    });
+    await s3Client.send(command);
+    return { success: true, storageKey };
+  } catch (err: any) {
+    logger.error({ err: err.message, storageKey }, "Failed to upload buffer to S3");
+    throw err;
+  }
+}
+
 export async function verifyObjectExists(
   storageKey: string
 ): Promise<{ exists: boolean; size?: number; mimeType?: string }> {
