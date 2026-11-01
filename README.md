@@ -98,8 +98,8 @@ Comprehensive documentation is maintained in the [`docs/`](docs/) directory:
 
 - [x] **Phase 0: Documentation & Project Discovery** (Completed)
 - [x] **Phase 1: Repository & Backend Foundation** (Completed)
-- [ ] **Phase 2: Database & Better Auth Authentication** (In Progress)
-- [ ] **Phase 3: Authorization & Security Foundation**
+- [x] **Phase 2: Database & Better Auth Authentication** (Completed)
+- [ ] **Phase 3: Authorization & Security Foundation** (In Progress)
 - [ ] **Phase 4: Core Case Management**
 - [ ] **Phase 5: AI Interview & Statements**
 - [ ] **Phase 6: Evidence Management & Document Processing**

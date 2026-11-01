@@ -39,20 +39,20 @@ Status Legend:
 ---
 
 ## Phase 2: Database & Better Auth (Neon Auth) Authentication
-- [ ] Author Prisma schema (`prisma/schema.prisma`) with all 24 core models and enums.
-- [ ] Add `authUserId` unique constraint to `User` model.
-- [ ] Configure relational indexes, foreign key cascades, and unique constraints.
-- [ ] Execute database migrations against Neon PostgreSQL.
-- [ ] Create database seed script (`prisma/seed.ts`) with initial case categories and practice areas.
-- [ ] Implement Neon Auth JWKS token verification service using `jose`.
-- [ ] Implement `authenticate` middleware to verify Bearer JWT and bind PostgreSQL `req.user`.
-- [ ] Implement synchronous idempotent user provisioning on first authenticated request.
-- [ ] Implement Citizen registration & profile sync flow.
-- [ ] Implement Lawyer registration & `LawyerProfile` initialization flow (defaults to `PENDING`).
-- [ ] Implement secure internal Admin bootstrap CLI command (`bun run seed:admin`).
-- [ ] Implement user profile endpoints (`GET /api/v1/auth/me`, `GET /api/v1/users/me`, `PATCH /api/v1/users/me`).
-- [ ] Enforce account status checks (`ACTIVE`, `SUSPENDED`, `DEACTIVATED`).
-- [ ] Unit & integration tests for auth token verification and provisioning.
+- [x] Author Prisma schema (`prisma/schema.prisma`) with all 24 core models and enums.
+- [x] Add `authUserId` unique constraint to `User` model.
+- [x] Configure relational indexes, foreign key cascades, and unique constraints.
+- [x] Execute database migrations against Neon PostgreSQL.
+- [x] Create database seed script (`prisma/seed.ts`) with initial case categories and practice areas.
+- [x] Implement Neon Auth JWKS token verification service using `jose`.
+- [x] Implement `authenticate` middleware to verify Bearer JWT and bind PostgreSQL `req.user`.
+- [x] Implement synchronous idempotent user provisioning on first authenticated request.
+- [x] Implement Citizen registration & profile sync flow.
+- [x] Implement Lawyer registration & `LawyerProfile` initialization flow (defaults to `PENDING`).
+- [x] Implement secure internal Admin bootstrap CLI command (`bun run seed:admin`).
+- [x] Implement user profile endpoints (`GET /api/v1/auth/me`, `GET /api/v1/users/me`, `PATCH /api/v1/users/me`).
+- [x] Enforce account status checks (`ACTIVE`, `SUSPENDED`, `DEACTIVATED`).
+- [x] Unit & integration tests for auth token verification and provisioning.
 
 ---
 

@@ -7,6 +7,8 @@ import { logger } from "./utils/logger.js";
 import { requestIdMiddleware } from "./middleware/requestId.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { healthRouter } from "./routes/health.js";
+import { authRouter } from "./routes/auth.js";
+import { usersRouter } from "./routes/users.js";
 import { sendError } from "./utils/response.js";
 
 export const app = express();
@@ -66,7 +68,11 @@ if (env.NODE_ENV !== "test") {
 app.use(healthRouter);
 app.use("/api/v1", healthRouter);
 
-// 6. Base API v1 Entry Route
+// 6. Mount Domain API Routers
+app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/users", usersRouter);
+
+// 7. Base API v1 Entry Route
 const v1Router = express.Router();
 v1Router.get("/", (_req, res) => {
   res.json({
