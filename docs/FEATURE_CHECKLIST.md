@@ -206,49 +206,48 @@ Status Legend:
 ---
 
 ## Phase 14: Citizen Portal Frontend
-- [ ] Build Citizen Dashboard with case overview cards, status steppers, pending action alerts, and quick intake buttons.
-- [ ] Build Case Detail overview page with tabbed navigation (Overview, Parties, Evidence, Timeline, Packet, Consultations).
-- [ ] Build Multi-step Case Creation Wizard:
-  - [ ] Step 1: Dispute category visual picker (Consumer, Tenancy, Employment, Loan, Family, Property, Cyber).
-  - [ ] Step 2: Dispute details form (title, incident date picker, city, state, description).
-  - [ ] Step 3: Involved parties dynamic form (opposing party, landlord/employer, contact details).
-  - [ ] Step 4: Review and submit with instant transition to intake interview.
-- [ ] Build AI Intake Interview Screen:
-  - [ ] Conversational chat UI with citizen and AI message bubbles.
-  - [ ] Category-specific question prompt flows and dynamic suggestion chips.
-  - [ ] Speech-to-text voice input trigger.
-  - [ ] "Conclude & Compile Statement" button with confirmation dialog.
-- [ ] Build Evidence Manager & Document Dropzone:
-  - [ ] Drag-and-drop file upload with client-side SHA-256 calculation.
-  - [ ] Direct-to-S3 presigned upload progress bar.
-  - [ ] Evidence item cards with processing status badges (`QUEUED`, `PROCESSING`, `COMPLETED`, `FAILED`).
-  - [ ] Extracted OCR text / Audio transcript preview drawer.
-  - [ ] Secure presigned download trigger.
-- [ ] Build Interactive Chronological Timeline:
-  - [ ] Chronological event cards with dates, titles, and descriptions.
-  - [ ] Clickable source citation chips linking directly to evidence and statement IDs.
-  - [ ] Inline status toggles: `CITIZEN_CONFIRMED`, `CITIZEN_CORRECTED`, `DISPUTED`.
-  - [ ] Add manual timeline event modal with provenance source selector.
-  - [ ] Formal Verification certification modal creating immutable `CaseVerification` snapshot.
-- [ ] Build PDF Case Packet Generation Screen:
-  - [ ] Trigger async/sync packet compilation.
-  - [ ] Generation progress indicator with live polling.
-  - [ ] Version history selector (`v1`, `v2`, ...).
-  - [ ] Cryptographic SHA-256 tamper hash card with one-click copy.
-  - [ ] Presigned PDF download button.
-- [ ] Build Lawyer Discovery & Consultation Manager:
-  - [ ] Verified advocate discovery drawer.
-  - [ ] Book consultation modal (mode, preferred date/time, intake message).
-  - [ ] Consultation status tracker (Pending, Accepted with meeting link, Completed).
-- [ ] Build Scoped Case Access Grant Manager:
-  - [ ] Issue access grant modal with granular scopes (`canViewSummary`, `canViewEvidence`, `canDownload`, expiration days).
-  - [ ] Active grants table.
-  - [ ] One-click immediate revocation button with instant UI updates.
-- [ ] Build Collaboration Workspace:
-  - [ ] Shared lawyer-citizen comments thread.
-  - [ ] Information request replies with document attachment.
-  - [ ] Shared action plan checklist with interactive completion toggles.
-- [ ] Build Notification Drawer with unread badges and notification preferences modal.
+- [x] Build Citizen Dashboard with case overview cards, status steppers, pending action alerts, and quick intake buttons.
+- [x] Build Case Detail overview page with tabbed navigation (Overview, Parties, Evidence, Timeline, Packet, Consultations).
+- [x] Build Multi-step Case Creation Wizard:
+  - [x] Step 1: Dispute category visual picker (Consumer, Tenancy, Employment, Loan, Family, Property, Cyber).
+  - [x] Step 2: Dispute details form (title, incident date picker, city, state, description).
+  - [x] Step 3: Involved parties dynamic form (opposing party, landlord/employer, contact details).
+  - [x] Step 4: Review and submit with instant transition to intake interview.
+- [x] Build AI Intake Interview Screen:
+  - [x] Conversational chat UI with citizen and AI message bubbles.
+  - [x] Category-specific question prompt flows and dynamic suggestion chips.
+  - [x] Speech-to-text voice input trigger.
+  - [x] "Conclude & Compile Statement" button with confirmation dialog.
+- [x] Build Evidence Manager & Document Dropzone:
+  - [x] Drag-and-drop file upload with client-side SHA-256 calculation.
+  - [x] Direct-to-S3 presigned upload progress bar.
+  - [x] Evidence item cards with processing status badges (`QUEUED`, `PROCESSING`, `COMPLETED`, `FAILED`).
+  - [x] Extracted OCR text / Audio transcript preview drawer.
+  - [x] Secure presigned download trigger.
+- [x] Build Interactive Chronological Timeline:
+  - [x] Chronological event cards with dates, titles, and descriptions.
+  - [x] Clickable source citation chips linking directly to evidence and statement IDs.
+  - [x] Inline status toggles: `CITIZEN_CONFIRMED`, `CITIZEN_CORRECTED`, `DISPUTED`.
+  - [x] Add manual timeline event modal with provenance source selector.
+  - [x] Formal Verification certification modal creating immutable `CaseVerification` snapshot.
+- [x] Build PDF Case Packet Generation Screen:
+  - [x] Trigger async/sync packet compilation.
+  - [x] Generation progress indicator with live polling.
+  - [x] Version history selector (`v1`, `v2`, ...).
+  - [x] Cryptographic SHA-256 tamper hash card with one-click copy.
+  - [x] Presigned PDF download button.
+- [x] Build Lawyer Discovery & Consultation Manager:
+  - [x] Verified advocate discovery drawer.
+  - [x] Book consultation modal (mode, preferred date/time, intake message).
+  - [x] Consultation status tracker (Pending, Accepted with meeting link, Completed).
+- [x] Build Scoped Case Access Grant Manager:
+  - [x] Issue access grant modal with granular scopes (`canViewSummary`, `canViewEvidence`, `canDownload`, expiration days).
+  - [x] Active grants table.
+  - [x] One-click immediate revocation button with instant UI updates.
+- [x] Build Collaboration Workspace:
+  - [x] Shared lawyer-citizen comments thread.
+  - [x] Information request replies with document attachment.
+  - [x] Shared action plan checklist with interactive completion toggles.
 
 ---
 

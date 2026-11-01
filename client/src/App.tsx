@@ -13,6 +13,12 @@ import { RegisterPage } from "./pages/auth/RegisterPage";
 import { UnauthorizedPage } from "./pages/public/UnauthorizedPage";
 import { NotFoundPage } from "./pages/public/NotFoundPage";
 
+// Phase 14 Citizen Portal Pages
+import { CitizenLayout } from "./components/citizen/CitizenLayout";
+import { CitizenDashboard } from "./pages/citizen/CitizenDashboard";
+import { CreateCaseWizard } from "./pages/citizen/CreateCaseWizard";
+import { CaseDetailPage } from "./pages/citizen/CaseDetailPage";
+
 // Global React Query Client with smart defaults
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -42,13 +48,17 @@ export default function App() {
 
               {/* Citizen Portal (Phase 14) */}
               <Route
-                path="/dashboard/*"
+                path="/dashboard"
                 element={
                   <ProtectedRoute allowedRoles={["CITIZEN"]}>
-                    <div className="p-8 text-center">Citizen Portal Loading...</div>
+                    <CitizenLayout />
                   </ProtectedRoute>
                 }
-              />
+              >
+                <Route index element={<CitizenDashboard />} />
+                <Route path="cases/new" element={<CreateCaseWizard />} />
+                <Route path="cases/:caseId" element={<CaseDetailPage />} />
+              </Route>
 
               {/* Lawyer Portal (Phase 15) */}
               <Route
