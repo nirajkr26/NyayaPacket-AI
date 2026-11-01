@@ -15,6 +15,20 @@ interface NotificationItem {
   createdAt: string;
 }
 
+function formatNotificationTime(isoString: string) {
+  try {
+    const diffMs = Date.now() - new Date(isoString).getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+    return new Date(isoString).toLocaleDateString("en-IN", { month: "short", day: "numeric" });
+  } catch {
+    return "";
+  }
+}
+
 export function NotificationBell() {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -89,15 +103,7 @@ export function NotificationBell() {
     }
   };
 
-  const formatTime = (isoString: string) => {
-    const diffMs = Date.now() - new Date(isoString).getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    if (diffMins < 1) return "Just now";
-    if (diffMins < 60) return `${diffMins}m ago`;
-    const diffHours = Math.floor(diffMins / 60);
-    if (diffHours < 24) return `${diffHours}h ago`;
-    return new Date(isoString).toLocaleDateString("en-IN", { month: "short", day: "numeric" });
-  };
+
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -165,7 +171,7 @@ export function NotificationBell() {
                       </p>
                       <span className="text-[10px] text-muted-foreground whitespace-nowrap flex items-center gap-1">
                         <Clock className="w-3 h-3 opacity-60" />
-                        {formatTime(item.createdAt)}
+                        {formatNotificationTime(item.createdAt)}
                       </span>
                     </div>
                     <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
