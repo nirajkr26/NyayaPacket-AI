@@ -60,48 +60,50 @@ export async function createCase(user: User, input: CreateCaseInput) {
   while (attempts < 3) {
     const caseNumber = await generateCaseNumber();
     try {
-      newCase = await prisma.$transaction(async (tx) => {
-        const created = await tx.case.create({
-          data: {
-            caseNumber,
-            title: input.title.trim(),
-            description: input.description?.trim() || null,
-            ownerId: user.id,
-            categoryId: input.categoryId,
-            status: CaseStatus.NEW_CASE,
-            priority: input.priority || CasePriority.NORMAL,
-            incidentDate,
-            city: input.city?.trim() || null,
-            state: input.state?.trim() || null,
-          },
-        });
-
-        // Record initial status in status history
-        await tx.caseStatusHistory.create({
-          data: {
-            caseId: created.id,
-            changedById: user.id,
-            newStatus: CaseStatus.NEW_CASE,
-            note: "Initial case intake created by citizen",
-          },
-        });
-
-        // Create initial parties if provided
-        if (input.parties && input.parties.length > 0) {
-          await tx.caseParty.createMany({
-            data: input.parties.map((p) => ({
-              caseId: created.id,
-              name: p.name.trim(),
-              relationship: p.relationship?.trim() || null,
-              organization: p.organization?.trim() || null,
-              contactInfo: p.contactInfo?.trim() || null,
-              description: p.description?.trim() || null,
-            })),
+      newCase = await prisma.$transaction(
+        async (tx) => {
+          const created = await tx.case.create({
+            data: {
+              caseNumber,
+              title: input.title.trim(),
+              description: input.description?.trim() || null,
+              ownerId: user.id,
+              categoryId: input.categoryId,
+              status: CaseStatus.NEW_CASE,
+              priority: input.priority || CasePriority.NORMAL,
+              incidentDate,
+              city: input.city?.trim() || null,
+              state: input.state?.trim() || null,
+              statusHistory: {
+                create: {
+                  changedById: user.id,
+                  newStatus: CaseStatus.NEW_CASE,
+                  note: "Initial case intake created by citizen",
+                },
+              },
+              ...(input.parties && input.parties.length > 0
+                ? {
+                    parties: {
+                      create: input.parties.map((p) => ({
+                        name: p.name.trim(),
+                        relationship: p.relationship?.trim() || null,
+                        organization: p.organization?.trim() || null,
+                        contactInfo: p.contactInfo?.trim() || null,
+                        description: p.description?.trim() || null,
+                      })),
+                    },
+                  }
+                : {}),
+            },
           });
-        }
 
-        return created;
-      });
+          return created;
+        },
+        {
+          maxWait: 15000,
+          timeout: 30000,
+        }
+      );
       break;
     } catch (err: any) {
       if (err?.code === "P2002" && attempts < 2) {

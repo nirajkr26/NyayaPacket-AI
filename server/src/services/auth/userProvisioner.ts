@@ -94,6 +94,9 @@ export async function getOrProvisionUser(
       }
 
       return createdUser;
+    }, {
+      maxWait: 15000,
+      timeout: 30000,
     });
 
     return (await prisma.user.findUnique({
