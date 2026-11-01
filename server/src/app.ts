@@ -12,6 +12,8 @@ import { usersRouter } from "./routes/users.js";
 import { categoriesRouter } from "./routes/categories.js";
 import { casesRouter } from "./routes/cases.js";
 import { partiesRouter } from "./routes/parties.js";
+import { interviewsRouter } from "./routes/interviews.js";
+import { statementsRouter } from "./routes/statements.js";
 import { sendError } from "./utils/response.js";
 
 export const app = express();
@@ -77,6 +79,8 @@ app.use("/api/v1/users", usersRouter);
 app.use("/api/v1/categories", categoriesRouter);
 app.use("/api/v1/cases", casesRouter);
 app.use("/api/v1/cases/:caseId/parties", partiesRouter);
+app.use("/api/v1/cases/:caseId/interviews", interviewsRouter);
+app.use("/api/v1/cases/:caseId/statements", statementsRouter);
 
 // 7. Base API v1 Entry Route
 const v1Router = express.Router();

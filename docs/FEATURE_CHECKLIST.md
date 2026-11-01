@@ -82,13 +82,13 @@ Status Legend:
 ---
 
 ## Phase 5: AI Interview & Citizen Statements
-- [ ] Implement Interview Session initialization (`POST /api/v1/cases/:id/interviews`).
-- [ ] Implement Interview Message exchange (`POST /api/v1/cases/:id/interviews/:sessionId/messages`).
-- [ ] Implement Category-specific dynamic question prompts (Unpaid wages, Tenancy, Consumer disputes).
-- [ ] Implement Statement creation and management (`POST /api/v1/cases/:id/statements`).
-- [ ] Implement Interview state persistence (Save / Resume workflow).
-- [ ] Implement Interview completion and final statement synthesis (`POST /api/v1/cases/:id/interviews/:sessionId/complete`).
-- [ ] Integration tests verifying interview session isolation and case association.
+- [x] Implement Interview Session initialization (`POST /api/v1/cases/:id/interviews`).
+- [x] Implement Interview Message exchange (`POST /api/v1/cases/:id/interviews/:sessionId/messages`).
+- [x] Implement Category-specific dynamic question prompts (Unpaid wages, Tenancy, Consumer disputes).
+- [x] Implement Statement creation and management (`POST /api/v1/cases/:id/statements`).
+- [x] Implement Interview state persistence (Save / Resume workflow).
+- [x] Implement Interview completion and final statement synthesis (`POST /api/v1/cases/:id/interviews/:sessionId/complete`).
+- [x] Integration tests verifying interview session isolation and case association.
 
 ---
 
