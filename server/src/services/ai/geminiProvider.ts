@@ -5,11 +5,11 @@ import type { ILLMProvider } from "./aiProvider.js";
 
 export class GeminiProvider implements ILLMProvider {
   name = "google-gemini";
-  private model: string;
+  public model: string;
   private apiKey: string;
 
   constructor() {
-    this.model = "gemini-1.5-flash";
+    this.model = env.GEMINI_MODEL || "gemini-3.5-flash-lite";
     this.apiKey = env.GEMINI_API_KEY || "";
   }
 
@@ -114,9 +114,15 @@ export class GeminiProvider implements ILLMProvider {
   }
 
   private generateMockStructured<T>(schema: z.ZodType<T>, prompt: string): T {
-    // Extract any source IDs present in the prompt so tests can verify provenance linking
-    const idMatches = prompt.match(/c[a-z0-9]{20,30}/g) || [];
-    const sourceId = idMatches[0] || "c_test_source_id";
+    // Extract genuine Evidence or Statement source IDs present in the prompt, excluding the Case ID
+    const extractedSourceIds = Array.from(
+      prompt.matchAll(/(?:Evidence ID|Statement ID):\s*([a-z0-9_-]+)/gi)
+    ).map((m) => m[1]);
+
+    const idMatches =
+      extractedSourceIds.length > 0
+        ? extractedSourceIds
+        : (prompt.match(/c[a-z0-9]{20,30}/g) || []).filter((id) => !prompt.includes(`Case ID: ${id}`));
 
     const mockData: any = {
       summary: "This dispute pertains to an employment agreement breach and delayed salary payments under the Payment of Wages Act and Indian Contract Act, 1872. The claimant served formal notice after two consecutive months of unpaid compensation.",

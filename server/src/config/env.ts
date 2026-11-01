@@ -24,6 +24,7 @@ const envSchema = z.object({
   AWS_REGION: z.string().default("auto"),
   S3_BUCKET_NAME: z.string().default("nyayapacket-ai"),
   GEMINI_API_KEY: z.string().optional(),
+  GEMINI_MODEL: z.string().default("gemini-3.5-flash-lite"),
   DEEPGRAM_API_KEY: z.string().optional(),
   CORS_ORIGIN: z.string().default("*"),
   RATE_LIMIT_MAX: z

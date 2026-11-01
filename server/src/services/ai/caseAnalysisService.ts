@@ -79,7 +79,16 @@ EVALUATED EVIDENCE & TRANSCRIPTS:
 ${evidenceText || "No processed evidence documents"}
 
 TASK:
-Provide a rigorous legal case summary and identify missing information.`;
+Provide a rigorous legal case summary and identify missing information.
+Return a JSON object with the following fields:
+- summary: string
+- keyIssues: array of strings
+- reliefSought: string (or array of strings)
+- strengths: array of strings
+- weaknesses: array of strings
+- missingInformation: array of strings
+- sourceCitations: array of { sourceId: string, sourceType: "EVIDENCE" | "STATEMENT", note?: string }
+Ground every citation strictly in the Statement IDs or Evidence IDs provided above.`;
 
   // 2. Perform Case Summary Run
   const summaryAiRun = await prisma.aiRun.create({
@@ -87,7 +96,7 @@ Provide a rigorous legal case summary and identify missing information.`;
       caseId,
       type: AiRunType.CASE_SUMMARY,
       provider: geminiProvider.name,
-      model: "gemini-1.5-flash",
+      model: geminiProvider.model,
       promptVersion: "1.0",
       status: ProcessingStatus.PROCESSING,
     },
@@ -153,18 +162,18 @@ Provide a rigorous legal case summary and identify missing information.`;
       caseId,
       type: AiRunType.TIMELINE_EXTRACTION,
       provider: geminiProvider.name,
-      model: "gemini-1.5-flash",
+      model: geminiProvider.model,
       promptVersion: "1.0",
       status: ProcessingStatus.PROCESSING,
     },
   });
 
   const timelinePrompt = `Extract a chronological sequence of all critical events from the statements and evidence below.
-For every event, provide:
+Return a JSON object with an "events" key containing an array of events with fields:
 1. date (YYYY-MM-DD or approximate date)
-2. title
-3. description
-4. sourceIds (only list valid Statement IDs or Evidence IDs that appear in the text below).
+2. title (concise string)
+3. description (detailed explanation)
+4. sourceIds (array of valid Statement IDs or Evidence IDs from below).
 
 STATEMENTS:
 ${statementsText}
