@@ -16,20 +16,27 @@ export async function generateCaseNumber(): Promise<string> {
     },
   });
 
-  const nextSequence = (count + 1).toString().padStart(4, "0");
-  const caseNumber = `${yearPrefix}${nextSequence}`;
+  let nextSequence = (count + 1).toString().padStart(4, "0");
+  let candidate = `${yearPrefix}${nextSequence}`;
 
-  // Check for collision (in case of concurrent writes)
-  const existing = await prisma.case.findUnique({
-    where: { caseNumber },
-    select: { id: true },
-  });
+  // Loop with collision check up to 5 times to ensure complete uniqueness
+  let attempts = 0;
+  while (attempts < 5) {
+    const existing = await prisma.case.findUnique({
+      where: { caseNumber: candidate },
+      select: { id: true },
+    });
 
-  if (existing) {
-    // Fallback to random 4-digit suffix if collision occurs
+    if (!existing) {
+      return candidate;
+    }
+
+    // Generate random 4-digit suffix on collision
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-    return `${yearPrefix}${randomSuffix}`;
+    candidate = `${yearPrefix}${randomSuffix}`;
+    attempts++;
   }
 
-  return caseNumber;
+  // Fallback with timestamp slice
+  return `${yearPrefix}${Date.now().toString().slice(-4)}`;
 }

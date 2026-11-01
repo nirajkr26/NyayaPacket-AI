@@ -113,3 +113,32 @@ export async function verifyObjectExists(
     return { exists: false };
   }
 }
+
+export async function getObjectBuffer(
+  storageKey: string
+): Promise<{ buffer: Buffer; contentType: string } | null> {
+  if (env.NODE_ENV === "test") {
+    return {
+      buffer: Buffer.from("Mock document content for test environment"),
+      contentType: "text/plain",
+    };
+  }
+
+  try {
+    const command = new GetObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: storageKey,
+    });
+    const response = await s3Client.send(command);
+    if (!response.Body) return null;
+
+    const byteArray = await response.Body.transformToByteArray();
+    return {
+      buffer: Buffer.from(byteArray),
+      contentType: response.ContentType || "application/octet-stream",
+    };
+  } catch (err: any) {
+    logger.error({ err: err.message, storageKey }, "Failed to fetch object buffer from S3");
+    return null;
+  }
+}

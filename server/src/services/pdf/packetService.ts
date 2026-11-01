@@ -55,11 +55,13 @@ export async function generateCasePacket(caseId: string, _triggeredById?: string
     throw new Error(`Case with ID ${caseId} not found`);
   }
 
-  // Determine next packet version
-  const previousPacketsCount = await prisma.packetGeneration.count({
+  // Determine next packet version monotonically
+  const latestPacket = await prisma.packetGeneration.findFirst({
     where: { caseId },
+    orderBy: { version: "desc" },
+    select: { version: true },
   });
-  const nextVersion = previousPacketsCount + 1;
+  const nextVersion = (latestPacket?.version ?? 0) + 1;
 
   // Extract latest AI Case Summary if available
   const latestSummaryRun = caseRecord.aiRuns[0];

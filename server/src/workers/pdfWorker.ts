@@ -1,10 +1,11 @@
 import { Worker, type Job } from "bullmq";
-import { redis } from "../lib/redis.js";
+import { createRedisConnection } from "../lib/redis.js";
 import { logger } from "../utils/logger.js";
 import { PDF_QUEUE_NAME, type PdfGenerationJobData } from "../queues/pdfQueue.js";
 import { generateCasePacket } from "../services/pdf/packetService.js";
 
 export function createPdfWorker(): Worker<PdfGenerationJobData> {
+  const pdfRedis = createRedisConnection();
   const worker = new Worker<PdfGenerationJobData>(
     PDF_QUEUE_NAME,
     async (job: Job<PdfGenerationJobData>) => {
@@ -20,7 +21,7 @@ export function createPdfWorker(): Worker<PdfGenerationJobData> {
       }
     },
     {
-      connection: redis,
+      connection: pdfRedis as any,
       concurrency: 2,
     }
   );

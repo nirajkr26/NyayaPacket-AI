@@ -7,18 +7,19 @@ declare global {
   var redisGlobal: Redis | undefined;
 }
 
-export const redis: Redis =
-  globalThis.redisGlobal ??
-  new Redis(env.REDIS_URL, {
-    maxRetriesPerRequest: null, // Required for BullMQ
+export function createRedisConnection(): Redis {
+  return new Redis(env.REDIS_URL, {
+    maxRetriesPerRequest: null,
     enableReadyCheck: true,
     connectTimeout: 10000,
     retryStrategy(times) {
-      const delay = Math.min(times * 200, 3000);
-      return delay;
+      return Math.min(times * 200, 3000);
     },
     tls: env.REDIS_URL.startsWith("rediss://") ? {} : undefined,
   });
+}
+
+export const redis: Redis = globalThis.redisGlobal ?? createRedisConnection();
 
 if (env.NODE_ENV !== "production") {
   globalThis.redisGlobal = redis;

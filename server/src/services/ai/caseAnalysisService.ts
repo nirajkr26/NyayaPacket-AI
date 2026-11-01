@@ -186,7 +186,16 @@ ${evidenceText}`;
       timelineResult.events
     );
 
-    // Insert or update Timeline Events in the database
+    // Clear previous unverified timeline events to prevent duplication on re-runs,
+    // while strictly preserving any events that were citizen-confirmed or corrected
+    await prisma.timelineEvent.deleteMany({
+      where: {
+        caseId,
+        verificationStatus: VerificationStatus.UNVERIFIED,
+      },
+    });
+
+    // Insert fresh Timeline Events in the database
     for (const event of sanitizedEvents) {
       let parsedDate: Date | null = null;
       if (event.date) {

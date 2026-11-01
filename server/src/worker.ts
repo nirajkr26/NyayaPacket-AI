@@ -1,6 +1,6 @@
 import { Worker } from "bullmq";
 import type { Job } from "bullmq";
-import { redis } from "./lib/redis.js";
+import { createRedisConnection } from "./lib/redis.js";
 import { logger } from "./utils/logger.js";
 import { EVIDENCE_QUEUE_NAME } from "./queues/evidenceQueue.js";
 import type { EvidenceProcessingJobData } from "./queues/evidenceQueue.js";
@@ -8,6 +8,8 @@ import { processDocumentOcr } from "./workers/ocrWorker.js";
 import { processAudioTranscription } from "./workers/audioWorker.js";
 
 logger.info("👷 Starting NyayaPacket AI Background Worker process...");
+
+const evidenceWorkerRedis = createRedisConnection();
 
 export const evidenceWorker = new Worker<EvidenceProcessingJobData>(
   EVIDENCE_QUEUE_NAME,
@@ -21,7 +23,7 @@ export const evidenceWorker = new Worker<EvidenceProcessingJobData>(
     }
   },
   {
-    connection: redis as any,
+    connection: evidenceWorkerRedis as any,
     concurrency: 5,
   }
 );

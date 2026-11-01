@@ -29,6 +29,11 @@ import { notificationsRouter } from "./routes/notifications.js";
 import { adminRouter } from "./routes/admin.js";
 import { sendError } from "./utils/response.js";
 
+// Global BigInt JSON serialization patch to prevent TypeError in Express responses
+(BigInt.prototype as any).toJSON = function () {
+  return this.toString();
+};
+
 export const app = express();
 
 // 1. Security & Perimeter Middleware

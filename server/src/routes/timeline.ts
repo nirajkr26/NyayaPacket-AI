@@ -305,15 +305,18 @@ timelineRouter.post("/verify", async (req, res) => {
   const note = parse.success ? parse.data.verificationNote : undefined;
 
   try {
-    const previousVerificationsCount = await prisma.caseVerification.count({
+    const latestVerification = await prisma.caseVerification.findFirst({
       where: { caseId },
+      orderBy: { snapshotVersion: "desc" },
+      select: { snapshotVersion: true },
     });
+    const nextSnapshotVersion = (latestVerification?.snapshotVersion ?? 0) + 1;
 
     const verification = await prisma.caseVerification.create({
       data: {
         caseId,
         verifiedById: user.id,
-        snapshotVersion: previousVerificationsCount + 1,
+        snapshotVersion: nextSnapshotVersion,
         verificationNote: note || "Citizen verified all factual claims and timeline events as accurate.",
       },
       include: {

@@ -2,6 +2,7 @@ import { ProcessingStatus } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
 import { logger } from "../utils/logger.js";
 import { env } from "../config/env.js";
+import { generatePresignedDownloadUrl } from "../services/storage/s3Client.js";
 
 export async function processAudioTranscription(evidenceId: string, storageKey: string) {
   logger.info({ evidenceId, storageKey }, "Starting Deepgram audio transcription");
@@ -18,6 +19,7 @@ export async function processAudioTranscription(evidenceId: string, storageKey: 
     // 2. Call Deepgram API if key is present
     if (env.DEEPGRAM_API_KEY && !env.DEEPGRAM_API_KEY.startsWith("mock")) {
       try {
+        const presignedAudioUrl = await generatePresignedDownloadUrl(storageKey, 900);
         const response = await fetch(
           "https://api.deepgram.com/v1/listen?model=nova-2&smart_format=true&punctuate=true",
           {
@@ -27,7 +29,7 @@ export async function processAudioTranscription(evidenceId: string, storageKey: 
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              url: `https://${process.env.S3_BUCKET_NAME || "br-aged-thunder-b33nrofn"}.storage.neon.tech/${storageKey}`,
+              url: presignedAudioUrl,
             }),
           }
         );

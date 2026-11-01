@@ -170,6 +170,9 @@ export async function completeInterview(caseId: string, sessionId: string, user:
   if (session.case.ownerId !== user.id && user.role !== "ADMIN") {
     throw new ForbiddenError("Only case owner may conclude the interview", "CASE_ACCESS_DENIED");
   }
+  if (!session.isActive) {
+    throw new ValidationError("This interview session has already been completed");
+  }
 
   // Compile user messages into structured citizen statement
   const userMessages = session.messages.filter((m) => m.role === InterviewRole.USER);

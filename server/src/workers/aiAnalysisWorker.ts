@@ -1,5 +1,5 @@
 import { Worker, type Job } from "bullmq";
-import { redis } from "../lib/redis.js";
+import { createRedisConnection } from "../lib/redis.js";
 import { logger } from "../utils/logger.js";
 import {
   AI_ANALYSIS_QUEUE_NAME,
@@ -8,6 +8,7 @@ import {
 import { runCaseAnalysis } from "../services/ai/caseAnalysisService.js";
 
 export function createAiAnalysisWorker(): Worker<AiAnalysisJobData> {
+  const aiRedis = createRedisConnection();
   const worker = new Worker<AiAnalysisJobData>(
     AI_ANALYSIS_QUEUE_NAME,
     async (job: Job<AiAnalysisJobData>) => {
@@ -23,7 +24,7 @@ export function createAiAnalysisWorker(): Worker<AiAnalysisJobData> {
       }
     },
     {
-      connection: redis,
+      connection: aiRedis as any,
       concurrency: 2,
     }
   );

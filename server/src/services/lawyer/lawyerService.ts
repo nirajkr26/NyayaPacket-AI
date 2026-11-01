@@ -63,8 +63,6 @@ export async function listPublicLawyers(params: ListLawyersParams) {
           select: {
             id: true,
             fullName: true,
-            email: true,
-            phone: true,
             profileImage: true,
           },
         },

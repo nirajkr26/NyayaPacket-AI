@@ -63,40 +63,57 @@ export async function getOrProvisionUser(
 
   logger.info({ authUserId, email, role: assignedRole }, "Provisioning new application user");
 
-  const newUser = await prisma.$transaction(async (tx) => {
-    const createdUser = await tx.user.create({
-      data: {
-        authUserId,
-        email,
-        fullName,
-        profileImage,
-        role: assignedRole,
-        isActive: true,
-      },
-    });
-
-    // If lawyer registration, create initial PENDING LawyerProfile
-    if (assignedRole === UserRole.LAWYER) {
-      await tx.lawyerProfile.create({
+  try {
+    const newUser = await prisma.$transaction(async (tx) => {
+      const createdUser = await tx.user.create({
         data: {
-          userId: createdUser.id,
-          barCouncilNumber: `TEMP-${Date.now().toString().slice(-6)}`,
-          stateBarCouncil: "Pending Submission",
-          enrollmentYear: new Date().getFullYear(),
-          city: "Pending",
-          state: "Pending",
-          verificationStatus: LawyerVerificationStatus.PENDING,
-          isListed: false,
-          isAvailable: false,
+          authUserId,
+          email,
+          fullName,
+          profileImage,
+          role: assignedRole,
+          isActive: true,
         },
       });
+
+      // If lawyer registration, create initial PENDING LawyerProfile
+      if (assignedRole === UserRole.LAWYER) {
+        await tx.lawyerProfile.create({
+          data: {
+            userId: createdUser.id,
+            barCouncilNumber: `TEMP-${Date.now().toString().slice(-6)}`,
+            stateBarCouncil: "Pending Submission",
+            enrollmentYear: new Date().getFullYear(),
+            city: "Pending",
+            state: "Pending",
+            verificationStatus: LawyerVerificationStatus.PENDING,
+            isListed: false,
+            isAvailable: false,
+          },
+        });
+      }
+
+      return createdUser;
+    });
+
+    return (await prisma.user.findUnique({
+      where: { id: newUser.id },
+      include: { lawyerProfile: true },
+    })) as AuthUserWithProfile;
+  } catch (err: any) {
+    // Intercept unique constraint collisions from concurrent initial requests
+    if (err?.code === "P2002") {
+      logger.info({ authUserId, email }, "Concurrent user provisioning detected, retrieving existing record");
+      const existing = await prisma.user.findFirst({
+        where: {
+          OR: [{ authUserId }, { email }],
+        },
+        include: { lawyerProfile: true },
+      });
+      if (existing) {
+        return existing as AuthUserWithProfile;
+      }
     }
-
-    return createdUser;
-  });
-
-  return (await prisma.user.findUnique({
-    where: { id: newUser.id },
-    include: { lawyerProfile: true },
-  })) as AuthUserWithProfile;
+    throw err;
+  }
 }
