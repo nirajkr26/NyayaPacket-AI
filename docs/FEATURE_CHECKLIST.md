@@ -191,69 +191,144 @@ Status Legend:
 ---
 
 ## Phase 13: Frontend Foundation & Public Website
-- [ ] Setup Vite + React 19 + TypeScript + Tailwind CSS (v4) in `client/`.
-- [ ] Configure shadcn/ui components (Button, Card, Dialog, Form, Input, Select, Badge, Table).
-- [ ] Setup Lucide React icons.
-- [ ] Setup React Router v7 with role-based layout boundaries.
-- [ ] Setup TanStack Query v5 with centralized API client.
-- [ ] Configure Better Auth React client (`@better-auth/react`).
-- [ ] Implement Theme Provider (Light & Dark modes) with persistent user preference.
-- [ ] Build Public Landing Page with hero section, problem overview, and value proposition.
-- [ ] Build Public Lawyer Directory with interactive search and filters.
-- [ ] Build Authentication Pages (Login, Citizen Register, Lawyer Register).
-- [ ] Build Error, 404, and Unauthorized (`NotAllowed`) pages.
+- [ ] Initialize frontend dependencies: `lucide-react`, `react-router-dom`, `@tanstack/react-query`, `clsx`, `tailwind-merge`, `class-variance-authority`, `@better-auth/react`, `zod`, `react-hook-form`, `@hookform/resolvers/zod`.
+- [ ] Configure Tailwind CSS (v4) with LegalTech design tokens (court navy, gold/saffron, legal emerald, alert crimson).
+- [ ] Build core UI components (`client/src/components/ui/`): Button, Card, Dialog/Modal, Input, Textarea, Select, Badge, Table, Tabs, Tooltip, Skeleton, Toast.
+- [ ] Implement `ThemeProvider` with dark/light modes, system preference detection, and `localStorage` persistence.
+- [ ] Implement centralized API Client (`apiClient.ts`) with automatic Bearer token injection, request ID header, and 401 interceptor.
+- [ ] Configure Better Auth React client instance (`auth.ts`).
+- [ ] Build role-based layout boundaries (`PublicLayout`, `CitizenLayout`, `LawyerLayout`, `AdminLayout`).
+- [ ] Build route guards (`ProtectedRoute`, `RoleGate`, `PendingLawyerGate`) and unauthorized redirect pages (`NotAllowedPage`, `NotFoundPage`).
+- [ ] Build Public Landing Page with hero section, 4-step workflow explainer, category showcase, and statutory legal aid disclaimer.
+- [ ] Build Public Lawyer Directory (`/lawyers`) with live search, filters for city, state, practice area, and consultation mode.
+- [ ] Build Authentication Pages (Login, Citizen Register, Lawyer Register) with demo credential autofill helpers.
 
 ---
 
 ## Phase 14: Citizen Portal Frontend
-- [ ] Build Citizen Dashboard with case overview cards, stats, and action item alerts.
-- [ ] Build Multi-step Case Creation Wizard with category selection.
-- [ ] Build AI Intake Interview Screen with chat bubbles, suggestion chips, and voice input.
-- [ ] Build Evidence Library with drag-and-drop upload, status badges, and preview drawer.
-- [ ] Build Interactive Case Chronology / Timeline with source link modals.
-- [ ] Build Citizen Verification Screen: inline editing, confirmation buttons, and dispute tags.
-- [ ] Build PDF Packet Generation & Versioned Download Screen.
-- [ ] Build Lawyer Discovery & Consultation Request Modal.
-- [ ] Build Access Grant Manager (grant scopes, view active, revoke access).
-- [ ] Build Case Collaboration workspace (lawyer comments, action plan checklist).
-- [ ] Build Notification Drawer and Profile Settings.
+- [ ] Build Citizen Dashboard with case overview cards, status steppers, pending action alerts, and quick intake buttons.
+- [ ] Build Case Detail overview page with tabbed navigation (Overview, Parties, Evidence, Timeline, Packet, Consultations).
+- [ ] Build Multi-step Case Creation Wizard:
+  - [ ] Step 1: Dispute category visual picker (Consumer, Tenancy, Employment, Loan, Family, Property, Cyber).
+  - [ ] Step 2: Dispute details form (title, incident date picker, city, state, description).
+  - [ ] Step 3: Involved parties dynamic form (opposing party, landlord/employer, contact details).
+  - [ ] Step 4: Review and submit with instant transition to intake interview.
+- [ ] Build AI Intake Interview Screen:
+  - [ ] Conversational chat UI with citizen and AI message bubbles.
+  - [ ] Category-specific question prompt flows and dynamic suggestion chips.
+  - [ ] Speech-to-text voice input trigger.
+  - [ ] "Conclude & Compile Statement" button with confirmation dialog.
+- [ ] Build Evidence Manager & Document Dropzone:
+  - [ ] Drag-and-drop file upload with client-side SHA-256 calculation.
+  - [ ] Direct-to-S3 presigned upload progress bar.
+  - [ ] Evidence item cards with processing status badges (`QUEUED`, `PROCESSING`, `COMPLETED`, `FAILED`).
+  - [ ] Extracted OCR text / Audio transcript preview drawer.
+  - [ ] Secure presigned download trigger.
+- [ ] Build Interactive Chronological Timeline:
+  - [ ] Chronological event cards with dates, titles, and descriptions.
+  - [ ] Clickable source citation chips linking directly to evidence and statement IDs.
+  - [ ] Inline status toggles: `CITIZEN_CONFIRMED`, `CITIZEN_CORRECTED`, `DISPUTED`.
+  - [ ] Add manual timeline event modal with provenance source selector.
+  - [ ] Formal Verification certification modal creating immutable `CaseVerification` snapshot.
+- [ ] Build PDF Case Packet Generation Screen:
+  - [ ] Trigger async/sync packet compilation.
+  - [ ] Generation progress indicator with live polling.
+  - [ ] Version history selector (`v1`, `v2`, ...).
+  - [ ] Cryptographic SHA-256 tamper hash card with one-click copy.
+  - [ ] Presigned PDF download button.
+- [ ] Build Lawyer Discovery & Consultation Manager:
+  - [ ] Verified advocate discovery drawer.
+  - [ ] Book consultation modal (mode, preferred date/time, intake message).
+  - [ ] Consultation status tracker (Pending, Accepted with meeting link, Completed).
+- [ ] Build Scoped Case Access Grant Manager:
+  - [ ] Issue access grant modal with granular scopes (`canViewSummary`, `canViewEvidence`, `canDownload`, expiration days).
+  - [ ] Active grants table.
+  - [ ] One-click immediate revocation button with instant UI updates.
+- [ ] Build Collaboration Workspace:
+  - [ ] Shared lawyer-citizen comments thread.
+  - [ ] Information request replies with document attachment.
+  - [ ] Shared action plan checklist with interactive completion toggles.
+- [ ] Build Notification Drawer with unread badges and notification preferences modal.
 
 ---
 
 ## Phase 15: Lawyer Portal Frontend
-- [ ] Build Lawyer Onboarding & Bar Verification Submission Wizard.
-- [ ] Build Lawyer Verification Status Screen (`PENDING`, `APPROVED`, `REJECTED`).
-- [ ] Build Lawyer Dashboard with pending consultations and active shared cases.
-- [ ] Build Consultation Requests Inbox (Accept, Decline, Reschedule dialogs).
-- [ ] Build Consultation Availability Calendar settings.
+- [ ] Build Lawyer Onboarding Wizard:
+  - [ ] Professional details form (Bar Council Number, State Bar Council, Enrollment Year, Experience, City, State, Bio).
+  - [ ] Practice areas selector and language tags.
+  - [ ] Bar Council Enrollment Certificate and Bar ID card upload dropzone.
+- [ ] Build Lawyer Verification Status Screen:
+  - [ ] Status indicators for `PENDING`, `APPROVED`, and `REJECTED`.
+  - [ ] Rejection review notes card and certificate re-upload modal.
+- [ ] Build Lawyer Dashboard with high-level KPI cards (pending requests, upcoming sessions, active shared cases).
+- [ ] Build Weekly Availability Calendar settings:
+  - [ ] Day-of-week slots, start and end times.
+  - [ ] Timezone selector (`Asia/Kolkata`).
+  - [ ] Consultation modes toggles (Online vs. In-Person).
+- [ ] Build Consultation Requests Inbox:
+  - [ ] Requests list with citizen information and dispute summary.
+  - [ ] Accept consultation dialog (meeting link input, scheduled timestamp, prep notes).
+  - [ ] Decline consultation dialog with feedback note.
+  - [ ] Reschedule consultation dialog proposing alternative time.
 - [ ] Build Lawyer Shared Case Workspace:
-  - Scoped Case Summary view.
-  - Verified Timeline inspection with source references.
-  - Authorized Evidence viewer with download capability.
-  - Shared Case Comments & Private Professional Notes editor.
-  - Action Plan & Action Item creator.
-- [ ] Profile management and Bar credential display.
+  - [ ] Tab 1: AI Case Summary & Missing Information (gated by `canViewSummary`).
+  - [ ] Tab 2: Verified Timeline & Claims Chronology with source reference inspection.
+  - [ ] Tab 3: Authorized Evidence Viewer (gated by `canViewEvidence`; download button conditionally enabled based on `canDownload`).
+  - [ ] Tab 4: Dual-Channel Comments: Tabbed editor allowing advocate to post either a `SHARED_WITH_CITIZEN` note or a confidential `PRIVATE_LAWYER_NOTE` (clearly highlighted with yellow/amber background and locked badge).
+  - [ ] Tab 5: Action Plan & Task Manager: Create action items, set deadlines, assign to citizen or counsel, track status.
+- [ ] Build Lawyer Profile settings with Bar credential display.
 
 ---
 
 ## Phase 16: Admin Portal Frontend
-- [ ] Build Admin Dashboard with high-level platform stats and system health indicators.
-- [ ] Build Lawyer Verification Review Queue with document inspection modal and decision buttons.
-- [ ] Build User Management table with search, role filters, and suspend/reactivate actions.
-- [ ] Build Case Metadata Monitor (strictly without evidence content access).
-- [ ] Build BullMQ Background Job Queue monitor (queue lengths, failed jobs, retry actions).
-- [ ] Build Security Audit Log Explorer with search and filter by actor/resource.
-- [ ] Build Platform Category and Practice Area configuration manager.
+- [ ] Build Admin Dashboard with platform-wide KPI metrics (users, cases, consultations, packets, queue health).
+- [ ] Build Case Distribution chart by dispute category.
+- [ ] Build Lawyer Verification Review Queue:
+  - [ ] Pending advocates table with bar enrollment details.
+  - [ ] Embedded certificate viewer drawer with presigned download/inspection.
+  - [ ] Approval decision modal with audit note.
+  - [ ] Rejection decision modal with reason selection and custom feedback.
+- [ ] Build User Directory & Management:
+  - [ ] Paginated user table with role filter (Citizen, Lawyer, Admin) and status filter (Active, Suspended).
+  - [ ] User search by name and email.
+  - [ ] Account suspension modal with mandatory audit reason.
+  - [ ] Account reactivation toggle.
+- [ ] Build Case Metadata Monitor (Admin Privacy Guard):
+  - [ ] Administrative case metadata table (case number, title, category, status, priority, packet count, creation date).
+  - [ ] Strict privacy verification: zero links or buttons to citizen evidence files or raw statements.
+- [ ] Build BullMQ Queue Health Monitor:
+  - [ ] Real-time job counts for `evidence-processing`, `ai-analysis-queue`, and `pdf-generation-queue` (Waiting, Active, Completed, Failed).
+  - [ ] Manual refresh and failed job inspect/retry buttons.
+- [ ] Build Security Audit Log Explorer:
+  - [ ] Searchable and filterable audit trail by actor, action, and resource type.
+  - [ ] Expandable metadata JSON drawer.
 
 ---
 
 ## Phase 17: End-to-End Integration, Validation & Release
-- [ ] Comprehensive Playwright E2E test covering full Citizen -> Evidence -> AI -> PDF -> Lawyer -> Action Plan -> Revocation flow.
+- [ ] Implement Automated Playwright E2E Test Suite (`client/e2e/fullJourney.spec.ts`):
+  - [ ] Step 1: Citizen registration & login.
+  - [ ] Step 2: Citizen case creation with category & opposing party.
+  - [ ] Step 3: Citizen completes multi-turn AI interview.
+  - [ ] Step 4: Citizen uploads PDF bill receipt evidence with SHA-256 check.
+  - [ ] Step 5: Background worker processes OCR extraction.
+  - [ ] Step 6: Citizen triggers AI case synthesis & timeline extraction.
+  - [ ] Step 7: Citizen reviews chronology, edits an event, and signs off verification snapshot.
+  - [ ] Step 8: Citizen compiles PDF Case Packet dossier and verifies SHA-256 hash.
+  - [ ] Step 9: Lawyer registers and uploads Bar Council certificate.
+  - [ ] Step 10: Admin logs in, inspects certificate in review queue, and approves lawyer.
+  - [ ] Step 11: Citizen discovers verified lawyer in directory and requests consultation.
+  - [ ] Step 12: Citizen grants scoped access (`canViewSummary: true`, `canViewEvidence: true`, `canDownload: false`).
+  - [ ] Step 13: Lawyer logs in, accepts consultation with meeting link.
+  - [ ] Step 14: Lawyer opens shared workspace, views summary & evidence, confirms download button is disabled.
+  - [ ] Step 15: Lawyer posts private lawyer note and creates action plan item for citizen.
+  - [ ] Step 16: Citizen logs in, confirms private lawyer note is invisible, and marks action item complete.
+  - [ ] Step 17: Citizen revokes AccessGrant; lawyer reload immediately returns 403 Forbidden.
 - [ ] Multi-tenant isolation penetration test (cross-citizen IDOR attempts).
 - [ ] Lawyer approval gate penetration test.
 - [ ] Revoked grant immediate cutoff test.
 - [ ] Admin evidence privacy test.
 - [ ] Docker Compose setup for backend, worker, frontend, and local dependencies.
-- [ ] GitHub Actions CI workflow (lint, typecheck, test, build).
+- [ ] GitHub Actions CI workflow (lint, typecheck, bun test, playwright e2e).
 - [ ] Production deployment and backup/recovery documentation.
 - [ ] Final release audit against all 20 Master Acceptance Criteria.
