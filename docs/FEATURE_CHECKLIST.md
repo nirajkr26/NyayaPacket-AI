@@ -191,17 +191,17 @@ Status Legend:
 ---
 
 ## Phase 13: Frontend Foundation & Public Website
-- [ ] Initialize frontend dependencies: `lucide-react`, `react-router-dom`, `@tanstack/react-query`, `clsx`, `tailwind-merge`, `class-variance-authority`, `@better-auth/react`, `zod`, `react-hook-form`, `@hookform/resolvers/zod`.
-- [ ] Configure Tailwind CSS (v4) with LegalTech design tokens (court navy, gold/saffron, legal emerald, alert crimson).
-- [ ] Build core UI components (`client/src/components/ui/`): Button, Card, Dialog/Modal, Input, Textarea, Select, Badge, Table, Tabs, Tooltip, Skeleton, Toast.
-- [ ] Implement `ThemeProvider` with dark/light modes, system preference detection, and `localStorage` persistence.
-- [ ] Implement centralized API Client (`apiClient.ts`) with automatic Bearer token injection, request ID header, and 401 interceptor.
-- [ ] Configure Better Auth React client instance (`auth.ts`).
-- [ ] Build role-based layout boundaries (`PublicLayout`, `CitizenLayout`, `LawyerLayout`, `AdminLayout`).
-- [ ] Build route guards (`ProtectedRoute`, `RoleGate`, `PendingLawyerGate`) and unauthorized redirect pages (`NotAllowedPage`, `NotFoundPage`).
-- [ ] Build Public Landing Page with hero section, 4-step workflow explainer, category showcase, and statutory legal aid disclaimer.
-- [ ] Build Public Lawyer Directory (`/lawyers`) with live search, filters for city, state, practice area, and consultation mode.
-- [ ] Build Authentication Pages (Login, Citizen Register, Lawyer Register) with demo credential autofill helpers.
+- [x] Initialize frontend dependencies: `lucide-react`, `react-router-dom`, `@tanstack/react-query`, `clsx`, `tailwind-merge`, `class-variance-authority`, `zod`, `axios`.
+- [x] Configure Tailwind CSS (v4) with LegalTech design tokens (court navy, gold/saffron, legal emerald, alert crimson).
+- [x] Build core UI components (`client/src/components/ui/`): Button, Card, Dialog/Modal, Input, Textarea, Badge, Table, Tabs, Skeleton.
+- [x] Implement `ThemeProvider` with dark/light modes, system preference detection, and `localStorage` persistence.
+- [x] Implement centralized Axios API Client (`apiClient.ts`) with automatic Bearer token injection, request ID header, and 401 interceptor.
+- [x] Configure Auth Context & instant role switching (`AuthContext.tsx`).
+- [x] Build role-based layout boundaries (`PublicLayout`, `Navbar`, `Footer`).
+- [x] Build route guards (`ProtectedRoute`, `RoleGate`) and error pages (`UnauthorizedPage`, `NotFoundPage`).
+- [x] Build Public Landing Page with hero section, 4-step workflow explainer, category showcase, and statutory legal aid disclaimer.
+- [x] Build Public Lawyer Directory (`/lawyers`) with live search, filters for city, state, practice area, and consultation mode.
+- [x] Build Authentication Pages (Login, Register with role toggle) with 1-click instant demo role access.
 
 ---
 

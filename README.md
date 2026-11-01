@@ -372,7 +372,7 @@ Comprehensive documentation is maintained in the [`docs/`](docs/) directory:
 - [x] **Phase 10: Consultations & Case Sharing** (Completed)
 - [x] **Phase 11: Lawyer Collaboration Workspace** (Completed)
 - [x] **Phase 12: Notifications & Admin Backend** (Completed)
-- [ ] **Phase 13: Frontend Foundation & Public Website**
+- [x] **Phase 13: Frontend Foundation & Public Website** (Completed)
 - [ ] **Phase 14: Citizen Portal Frontend**
 - [ ] **Phase 15: Lawyer Portal Frontend**
 - [ ] **Phase 16: Admin Portal Frontend**
