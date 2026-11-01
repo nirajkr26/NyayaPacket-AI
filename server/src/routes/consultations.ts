@@ -130,7 +130,7 @@ consultationsRouter.get("/lawyer", async (req, res) => {
  * PATCH /api/v1/consultations/:id/respond
  * Lawyer accepts, declines, or reschedules a consultation
  */
-consultationsRouter.patch("/:id/respond", async (req, res) => {
+const respondToConsultationHandler = async (req: any, res: any) => {
   const user = req.user!;
   const consultationId = req.params["id"] as string;
 
@@ -162,4 +162,7 @@ consultationsRouter.patch("/:id/respond", async (req, res) => {
   } catch (err: any) {
     return sendError(res, "CONSULTATION_UPDATE_FAILED", err.message, 400);
   }
-});
+};
+
+consultationsRouter.patch("/:id/respond", respondToConsultationHandler);
+consultationsRouter.patch("/:id", respondToConsultationHandler);

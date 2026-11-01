@@ -108,7 +108,7 @@ export function LawyerDashboard() {
       meetingLink?: string;
       lawyerResponse?: string;
     }) => {
-      const res = await api.patch(`/consultations/${consultId}`, {
+      const res = await api.patch(`/consultations/${consultId}/respond`, {
         status,
         scheduledAt,
         meetingLink,
