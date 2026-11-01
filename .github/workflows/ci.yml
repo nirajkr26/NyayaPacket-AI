@@ -10,6 +10,30 @@ jobs:
   backend-test:
     name: Backend Test Suite & Typecheck
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgrespassword
+          POSTGRES_DB: nyayapacket_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -27,14 +51,26 @@ jobs:
         working-directory: ./server
         run: bunx prisma generate
 
+      - name: Push Database Schema & Seed Taxonomy
+        working-directory: ./server
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:postgrespassword@localhost:5432/nyayapacket_test?schema=public' }}
+        run: |
+          bunx prisma db push
+          bun run prisma/seed.ts
+
+      - name: Typecheck Backend
+        working-directory: ./server
+        run: bun run typecheck
+
       - name: Run Backend Tests
         working-directory: ./server
         env:
           NODE_ENV: test
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          REDIS_URL: ${{ secrets.REDIS_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:postgrespassword@localhost:5432/nyayapacket_test?schema=public' }}
+          REDIS_URL: ${{ secrets.REDIS_URL || 'redis://localhost:6379' }}
           JWT_SECRET: test_secret_key_for_ci_pipeline_only_32_characters_long
-        run: bun test
+        run: bun test --timeout 60000
 
   frontend-build:
     name: Frontend Client Build & Typecheck

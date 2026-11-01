@@ -16,7 +16,8 @@ packetsRouter.use(authenticate);
  * Trigger compilation and generation of a PDF case packet dossier
  */
 packetsRouter.post("/generate", async (req, res) => {
-  const caseId = (req.params.caseId || req.params.id) as string;
+  const params = req.params as Record<string, string>;
+  const caseId = (params["caseId"] || params["id"]) as string;
   const user = req.user;
 
   if (!user) {
@@ -66,7 +67,8 @@ packetsRouter.post("/generate", async (req, res) => {
  * List all generated case packets for a case
  */
 packetsRouter.get("/", async (req, res) => {
-  const caseId = (req.params.caseId || req.params.id) as string;
+  const params = req.params as Record<string, string>;
+  const caseId = (params["caseId"] || params["id"]) as string;
   const user = req.user;
 
   if (!user) {
@@ -108,8 +110,9 @@ packetsRouter.get("/", async (req, res) => {
  * Generate a short-lived presigned download URL for a specific packet version
  */
 packetsRouter.get("/:version/download", async (req, res) => {
-  const caseId = (req.params.caseId || req.params.id) as string;
-  const version = parseInt(req.params["version"] as string, 10);
+  const params = req.params as Record<string, string>;
+  const caseId = (params["caseId"] || params["id"]) as string;
+  const version = parseInt(params["version"] as string, 10);
   const user = req.user;
 
   if (!user) {

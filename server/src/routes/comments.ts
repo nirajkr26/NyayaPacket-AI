@@ -25,7 +25,8 @@ const createCommentSchema = z.object({
  * Add a comment or private lawyer note
  */
 commentsRouter.post("/", async (req, res) => {
-  const caseId = (req.params.caseId || req.params.id) as string;
+  const params = req.params as Record<string, string>;
+  const caseId = (params["caseId"] || params["id"]) as string;
   const user = req.user!;
 
   const access = await canAccessCase({
@@ -87,7 +88,8 @@ commentsRouter.post("/", async (req, res) => {
  * Retrieve case comments with visibility filtering
  */
 commentsRouter.get("/", async (req, res) => {
-  const caseId = (req.params.caseId || req.params.id) as string;
+  const params = req.params as Record<string, string>;
+  const caseId = (params["caseId"] || params["id"]) as string;
   const user = req.user!;
 
   const access = await canAccessCase({

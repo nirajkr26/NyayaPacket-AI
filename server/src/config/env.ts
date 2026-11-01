@@ -37,7 +37,20 @@ const envSchema = z.object({
 export type Env = z.infer<typeof envSchema>;
 
 function loadEnv(): Env {
-  const result = envSchema.safeParse(process.env);
+  const isTest = process.env.NODE_ENV === "test";
+  const raw = { ...process.env };
+
+  // Fallback to local test services if secrets are empty in test environment
+  if (isTest) {
+    if (!raw.DATABASE_URL || raw.DATABASE_URL.trim() === "") {
+      raw.DATABASE_URL = "postgresql://postgres:postgrespassword@localhost:5432/nyayapacket_test?schema=public";
+    }
+    if (!raw.REDIS_URL || raw.REDIS_URL.trim() === "") {
+      raw.REDIS_URL = "redis://localhost:6379";
+    }
+  }
+
+  const result = envSchema.safeParse(raw);
   if (!result.success) {
     console.error("❌ Invalid environment variables:", result.error.format());
     throw new Error("Invalid environment configuration");

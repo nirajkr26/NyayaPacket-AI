@@ -42,7 +42,8 @@ const createVerificationSchema = z.object({
  * Get all timeline events for a case with linked sources
  */
 timelineRouter.get("/", async (req, res) => {
-  const caseId = (req.params.caseId || req.params.id) as string;
+  const params = req.params as Record<string, string>;
+  const caseId = (params["caseId"] || params["id"]) as string;
   const user = req.user;
 
   if (!user) {
@@ -88,7 +89,8 @@ timelineRouter.get("/", async (req, res) => {
  * Add a manual timeline event with optional source citations
  */
 timelineRouter.post("/", async (req, res) => {
-  const caseId = (req.params.caseId || req.params.id) as string;
+  const params = req.params as Record<string, string>;
+  const caseId = (params["caseId"] || params["id"]) as string;
   const user = req.user;
 
   if (!user) {
@@ -177,8 +179,9 @@ timelineRouter.post("/", async (req, res) => {
  * Update timeline event or update verification status
  */
 timelineRouter.patch("/:eventId", async (req, res) => {
-  const caseId = (req.params.caseId || req.params.id) as string;
-  const eventId = req.params["eventId"] as string;
+  const params = req.params as Record<string, string>;
+  const caseId = (params["caseId"] || params["id"]) as string;
+  const eventId = params["eventId"] as string;
   const user = req.user;
 
   if (!user) {
@@ -241,8 +244,9 @@ timelineRouter.patch("/:eventId", async (req, res) => {
  * Delete a timeline event
  */
 timelineRouter.delete("/:eventId", async (req, res) => {
-  const caseId = (req.params.caseId || req.params.id) as string;
-  const eventId = req.params["eventId"] as string;
+  const params = req.params as Record<string, string>;
+  const caseId = (params["caseId"] || params["id"]) as string;
+  const eventId = params["eventId"] as string;
   const user = req.user;
 
   if (!user) {
@@ -283,7 +287,8 @@ timelineRouter.delete("/:eventId", async (req, res) => {
  * Citizen formally signs off and creates a CaseVerification snapshot
  */
 timelineRouter.post("/verify", async (req, res) => {
-  const caseId = (req.params.caseId || req.params.id) as string;
+  const params = req.params as Record<string, string>;
+  const caseId = (params["caseId"] || params["id"]) as string;
   const user = req.user;
 
   if (!user) {
@@ -337,7 +342,8 @@ timelineRouter.post("/verify", async (req, res) => {
  * List verification snapshots for the case
  */
 timelineRouter.get("/verifications", async (req, res) => {
-  const caseId = (req.params.caseId || req.params.id) as string;
+  const params = req.params as Record<string, string>;
+  const caseId = (params["caseId"] || params["id"]) as string;
   const user = req.user;
 
   if (!user) {

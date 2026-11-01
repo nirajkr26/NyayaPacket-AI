@@ -25,7 +25,8 @@ const createGrantSchema = z.object({
  * Citizen issues a scoped access grant to a verified lawyer
  */
 grantsRouter.post("/", async (req, res) => {
-  const caseId = (req.params.caseId || req.params.id) as string;
+  const params = req.params as Record<string, string>;
+  const caseId = (params["caseId"] || params["id"]) as string;
   const user = req.user!;
 
   const parse = createGrantSchema.safeParse(req.body);
@@ -55,7 +56,8 @@ grantsRouter.post("/", async (req, res) => {
  * Citizen lists all grants issued for their case
  */
 grantsRouter.get("/", async (req, res) => {
-  const caseId = (req.params.caseId || req.params.id) as string;
+  const params = req.params as Record<string, string>;
+  const caseId = (params["caseId"] || params["id"]) as string;
   const user = req.user!;
 
   try {
@@ -93,8 +95,9 @@ grantsRouter.get("/", async (req, res) => {
  * Citizen immediately revokes lawyer's access grant
  */
 grantsRouter.delete("/:grantId", async (req, res) => {
-  const caseId = (req.params.caseId || req.params.id) as string;
-  const grantId = req.params["grantId"] as string;
+  const params = req.params as Record<string, string>;
+  const caseId = (params["caseId"] || params["id"]) as string;
+  const grantId = params["grantId"] as string;
   const user = req.user!;
 
   try {

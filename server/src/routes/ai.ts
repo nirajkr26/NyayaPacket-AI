@@ -15,7 +15,8 @@ aiRouter.use(authenticate);
  * Trigger AI analysis (synchronously or background queue)
  */
 aiRouter.post("/analyze", async (req, res) => {
-  const caseId = (req.params.caseId || req.params.id) as string;
+  const params = req.params as Record<string, string>;
+  const caseId = (params["caseId"] || params["id"]) as string;
   const user = req.user;
 
   if (!user) {
@@ -46,14 +47,14 @@ aiRouter.post("/analyze", async (req, res) => {
         {
           jobId: job.id,
           status: "QUEUED",
-          message: "AI analysis queued for background processing",
         },
+        "AI analysis queued for background processing",
         202
       );
     } else {
       // Synchronous execution for immediate turnaround or tests
       const result = await runCaseAnalysis(caseId, user.id);
-      return sendSuccess(res, result, 200);
+      return sendSuccess(res, result, "Case analysis completed successfully", 200);
     }
   } catch (err: any) {
     return sendError(res, "AI_ANALYSIS_FAILED", err.message || "Failed to analyze case", 500);
@@ -65,7 +66,8 @@ aiRouter.post("/analyze", async (req, res) => {
  * List all AI runs performed on this case
  */
 aiRouter.get("/runs", async (req, res) => {
-  const caseId = (req.params.caseId || req.params.id) as string;
+  const params = req.params as Record<string, string>;
+  const caseId = (params["caseId"] || params["id"]) as string;
   const user = req.user;
 
   if (!user) {

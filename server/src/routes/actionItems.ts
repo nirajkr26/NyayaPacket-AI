@@ -37,7 +37,8 @@ const updateActionItemSchema = z.object({
  * Create an action item in the collaboration workspace
  */
 actionItemsRouter.post("/", async (req, res) => {
-  const caseId = (req.params.caseId || req.params.id) as string;
+  const params = req.params as Record<string, string>;
+  const caseId = (params["caseId"] || params["id"]) as string;
   const user = req.user!;
 
   const access = await canAccessCase({
@@ -93,7 +94,8 @@ actionItemsRouter.post("/", async (req, res) => {
  * List action items for a case
  */
 actionItemsRouter.get("/", async (req, res) => {
-  const caseId = (req.params.caseId || req.params.id) as string;
+  const params = req.params as Record<string, string>;
+  const caseId = (params["caseId"] || params["id"]) as string;
   const user = req.user!;
 
   const access = await canAccessCase({
@@ -127,8 +129,9 @@ actionItemsRouter.get("/", async (req, res) => {
  * Update action item status or details
  */
 actionItemsRouter.patch("/:itemId", async (req, res) => {
-  const caseId = (req.params.caseId || req.params.id) as string;
-  const itemId = req.params["itemId"] as string;
+  const params = req.params as Record<string, string>;
+  const caseId = (params["caseId"] || params["id"]) as string;
+  const itemId = params["itemId"] as string;
   const user = req.user!;
 
   const access = await canAccessCase({
@@ -190,8 +193,9 @@ actionItemsRouter.patch("/:itemId", async (req, res) => {
  * Delete an action item
  */
 actionItemsRouter.delete("/:itemId", async (req, res) => {
-  const caseId = (req.params.caseId || req.params.id) as string;
-  const itemId = req.params["itemId"] as string;
+  const params = req.params as Record<string, string>;
+  const caseId = (params["caseId"] || params["id"]) as string;
+  const itemId = params["itemId"] as string;
   const user = req.user!;
 
   const access = await canAccessCase({
