@@ -78,3 +78,47 @@ authRouter.get("/me", authenticate, (req: Request, res: Response, next: NextFunc
     next(err);
   }
 });
+
+/**
+ * POST /api/v1/auth/google-url
+ * Returns Google OAuth authorization URL via Neon Better Auth
+ */
+authRouter.post("/google-url", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const callbackURL = (req.body?.callbackURL as string) || "http://localhost:3000/auth/callback";
+
+    if (process.env.AUTH_URL) {
+      try {
+        const response = await fetch(`${process.env.AUTH_URL}/sign-in/social`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            provider: "google",
+            callbackURL,
+          }),
+        });
+
+        if (response.ok) {
+          const data: any = await response.json();
+          if (data?.url) {
+            return sendSuccess(res, { url: data.url, redirect: true }, "Google OAuth URL generated successfully");
+          }
+        }
+      } catch {
+        // Fall through to fallback
+      }
+    }
+
+    // Fallback if Neon Auth service is offline or in mock dev mode
+    return sendSuccess(
+      res,
+      {
+        url: `${callbackURL}?demo=google_citizen`,
+        redirect: false,
+      },
+      "Demo Google OAuth fallback URL"
+    );
+  } catch (err) {
+    next(err);
+  }
+});

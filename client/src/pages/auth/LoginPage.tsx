@@ -7,14 +7,38 @@ import { Button } from "../../components/ui/Button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
 
+function GoogleIcon({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24">
+      <path
+        fill="#4285F4"
+        d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.65v3.03h3.88c2.27-2.09 3.66-5.17 3.66-9.12z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.03c-1.07.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.13C3.26 21.41 7.34 24 12 24z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M5.28 14.29c-.25-.72-.38-1.49-.38-2.29s.13-1.57.38-2.29V6.58H1.24C.45 8.15 0 9.99 0 12s.45 3.85 1.24 5.42l4.04-3.13z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.59 1.24 6.58l4.04 3.13c.95-2.83 3.6-4.96 6.72-4.96z"
+      />
+    </svg>
+  );
+}
+
 export function LoginPage() {
-  const { loginWithMockRole, isAuthenticated, user, isLoading } = useAuth();
+  const { loginWithMockRole, loginWithGoogle, isAuthenticated, user, isLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [demoLoadingRole, setDemoLoadingRole] = useState<UserRole | null>(null);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // If already authenticated, redirect to appropriate role portal
@@ -43,6 +67,18 @@ export function LoginPage() {
       setError(err?.message || "Failed to log in with demo account");
     } finally {
       setDemoLoadingRole(null);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError(null);
+    setIsGoogleLoading(true);
+    try {
+      await loginWithGoogle();
+    } catch (err: any) {
+      setError(err?.message || "Failed to initiate Google Sign In");
+    } finally {
+      setIsGoogleLoading(false);
     }
   };
 
@@ -140,6 +176,31 @@ export function LoginPage() {
         {/* Standard Email / Password Form */}
         <Card className="glass-card shadow-lg border-border">
           <CardContent className="p-6">
+            {/* Google OAuth Button */}
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full h-11 border-border hover:bg-accent/10 hover:border-primary/50 text-xs sm:text-sm font-semibold flex items-center justify-center gap-3 shadow-sm transition-all duration-200"
+              onClick={handleGoogleSignIn}
+              isLoading={isGoogleLoading}
+              disabled={isLoading || !!demoLoadingRole}
+            >
+              <GoogleIcon className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+              <span>Continue with Google</span>
+            </Button>
+
+            {/* Divider */}
+            <div className="relative my-4">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-[11px] uppercase">
+                <span className="bg-card px-2 text-muted-foreground font-medium tracking-wider">
+                  Or continue with email
+                </span>
+              </div>
+            </div>
+
             <form onSubmit={handleStandardSubmit} className="space-y-4">
               {error && (
                 <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-xs">

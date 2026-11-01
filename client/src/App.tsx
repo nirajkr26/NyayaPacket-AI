@@ -10,6 +10,7 @@ import { LandingPage } from "./pages/public/LandingPage";
 import { LawyerDirectoryPage } from "./pages/public/LawyerDirectoryPage";
 import { LoginPage } from "./pages/auth/LoginPage";
 import { RegisterPage } from "./pages/auth/RegisterPage";
+import { AuthCallbackPage } from "./pages/auth/AuthCallbackPage";
 import { UnauthorizedPage } from "./pages/public/UnauthorizedPage";
 import { NotFoundPage } from "./pages/public/NotFoundPage";
 
@@ -58,6 +59,7 @@ export default function App() {
                 <Route path="/lawyers" element={<LawyerDirectoryPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
+                <Route path="/auth/callback" element={<AuthCallbackPage />} />
                 <Route path="/unauthorized" element={<UnauthorizedPage />} />
               </Route>
 

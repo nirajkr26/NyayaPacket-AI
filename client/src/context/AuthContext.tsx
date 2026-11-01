@@ -33,6 +33,7 @@ interface AuthContextType {
   logout: () => void;
   refreshUser: () => Promise<void>;
   loginWithMockRole: (role: UserRole) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -134,6 +135,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const loginWithGoogle = async () => {
+    setIsLoading(true);
+    try {
+      const callbackURL = `${window.location.origin}/auth/callback`;
+      const res = await api.post<{ url: string; redirect: boolean }>("/auth/google-url", { callbackURL });
+      if (res.data?.url) {
+        window.location.href = res.data.url;
+        return;
+      }
+      throw new Error("No OAuth redirect URL returned from authentication provider");
+    } catch (err) {
+      console.warn("Neon Google Auth request failed, activating demo Google session:", err);
+      await loginWithMockRole("CITIZEN");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     const handleLogout = () => logout();
     window.addEventListener("auth:logout", handleLogout);
@@ -155,6 +174,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logout,
         refreshUser,
         loginWithMockRole,
+        loginWithGoogle,
       }}
     >
       {children}
