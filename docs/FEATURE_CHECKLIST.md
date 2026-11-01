@@ -153,15 +153,15 @@ Status Legend:
 ---
 
 ## Phase 10: Consultations & Case Sharing
-- [ ] Implement Consultation Request initiation by Citizen (`POST /api/v1/consultations`).
-- [ ] Implement Lawyer Consultation inbox (`GET /api/v1/lawyers/me/consultations`).
-- [ ] Implement Lawyer Response (Accept, Decline, Reschedule) (`PATCH /api/v1/consultations/:id/respond`).
-- [ ] Implement Consultation Completion & Citizen Review (`POST /api/v1/consultations/:id/review`).
-- [ ] Implement Scoped Case Access Grant creation by Citizen (`POST /api/v1/cases/:id/grants`).
-- [ ] Implement Case Access Grant Revocation (`DELETE /api/v1/cases/:id/grants/:grantId`).
-- [ ] Implement Active Grants listing (`GET /api/v1/cases/:id/grants`).
-- [ ] Implement Lawyer Shared Cases workspace listing (`GET /api/v1/lawyers/me/shared-cases`).
-- [ ] Tests verifying immediate revocation blocks subsequent lawyer requests.
+- [x] Implement Consultation Request initiation by Citizen (`POST /api/v1/consultations`).
+- [x] Implement Lawyer Consultation inbox (`GET /api/v1/lawyers/me/consultations`).
+- [x] Implement Lawyer Response (Accept, Decline, Reschedule) (`PATCH /api/v1/consultations/:id/respond`).
+- [x] Implement Consultation Completion & Citizen Review (`POST /api/v1/consultations/:id/review`).
+- [x] Implement Scoped Case Access Grant creation by Citizen (`POST /api/v1/cases/:id/grants`).
+- [x] Implement Case Access Grant Revocation (`DELETE /api/v1/cases/:id/grants/:grantId`).
+- [x] Implement Active Grants listing (`GET /api/v1/cases/:id/grants`).
+- [x] Implement Lawyer Shared Cases workspace listing (`GET /api/v1/lawyers/me/shared-cases`).
+- [x] Tests verifying immediate revocation blocks subsequent lawyer requests.
 
 ---
 
