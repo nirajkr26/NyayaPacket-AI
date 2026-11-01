@@ -17,6 +17,7 @@ const envSchema = z.object({
   REDIS_URL: z.string().min(1, "REDIS_URL is required"),
   AUTH_URL: z.string().optional(),
   JWKS_URL: z.string().optional(),
+  JWT_SECRET: z.string().optional(),
   AWS_ENDPOINT_URL_S3: z.string().optional(),
   AWS_ACCESS_KEY_ID: z.string().optional(),
   AWS_SECRET_ACCESS_KEY: z.string().optional(),

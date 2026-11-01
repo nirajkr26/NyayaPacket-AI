@@ -1,4 +1,4 @@
-import { createRemoteJWKSet, jwtVerify } from "jose";
+import { createRemoteJWKSet, jwtVerify, decodeProtectedHeader } from "jose";
 import type { JWTPayload } from "jose";
 import { env } from "../../config/env.js";
 import { logger } from "../../utils/logger.js";
@@ -34,44 +34,63 @@ export async function verifyNeonJwt(token: string): Promise<VerifiedAuthPayload>
     throw new UnauthorizedError("Bearer token is missing or malformed");
   }
 
-  // 1. Test Environment: allow mock test tokens for fast, isolated test suite
-  if (env.NODE_ENV === "test") {
-    try {
-      const parts = token.split(".");
-      if (parts.length === 3) {
-        const payloadBuf = Buffer.from(parts[1]!, "base64");
-        const payload = JSON.parse(payloadBuf.toString("utf-8"));
-        if (payload && payload.sub) {
-          return payload as VerifiedAuthPayload;
-        }
-      }
-    } catch {
-      // Fall through to standard validation
+  const isDevOrTest = env.NODE_ENV === "development" || env.NODE_ENV === "test";
+
+  // 1. Inspect protected header for algorithm
+  let header: { alg?: string; typ?: string } = {};
+  try {
+    header = decodeProtectedHeader(token);
+  } catch (err: any) {
+    if (!isDevOrTest) {
+      throw new UnauthorizedError(`Malformed JWT header: ${err.message}`);
     }
   }
 
-  // 2. Production / Live JWKS Verification against Neon Auth
-  const jwks = getJWKS();
-  if (jwks) {
+  const isSymmetricAlg =
+    header.alg === "HS256" || header.alg === "HS384" || header.alg === "HS512";
+
+  // 2. Production / Live JWKS Verification for Asymmetric Tokens (EdDSA, RS256, ES256)
+  // Only attempt JWKS verification if the algorithm is not an HMAC algorithm
+  if (!isSymmetricAlg) {
+    const jwks = getJWKS();
+    if (jwks) {
+      try {
+        const { payload } = await jwtVerify(token, jwks);
+        if (!payload.sub) {
+          throw new UnauthorizedError("Token missing subject claim ('sub')");
+        }
+        return payload as VerifiedAuthPayload;
+      } catch (err: any) {
+        logger.warn({ err: err.message }, "JWKS verification failed");
+        if (!isDevOrTest) {
+          throw new UnauthorizedError(`Invalid authentication token: ${err.message}`);
+        }
+      }
+    }
+  }
+
+  // 3. HMAC Verification if JWT_SECRET is configured
+  if (isSymmetricAlg && env.JWT_SECRET) {
     try {
-      const { payload } = await jwtVerify(token, jwks);
+      const secret = new TextEncoder().encode(env.JWT_SECRET);
+      const { payload } = await jwtVerify(token, secret);
       if (!payload.sub) {
         throw new UnauthorizedError("Token missing subject claim ('sub')");
       }
       return payload as VerifiedAuthPayload;
     } catch (err: any) {
-      logger.warn({ err: err.message }, "JWKS verification failed");
-      throw new UnauthorizedError(`Invalid authentication token: ${err.message}`);
+      if (!isDevOrTest) {
+        throw new UnauthorizedError(`Invalid authentication token: ${err.message}`);
+      }
     }
   }
 
-  // 2. Test / Development Fallback: allow mock tokens if JWKS_URL is unconfigured
-  if (env.NODE_ENV === "test" || !env.JWKS_URL) {
+  // 4. Development & Test Fallback: safely extract payload for mock/demo accounts
+  if (isDevOrTest || !env.JWKS_URL) {
     try {
-      // Decode JWT parts (unverified fallback for test harness only)
       const parts = token.split(".");
       if (parts.length === 3) {
-        const payloadBuf = Buffer.from(parts[1]!, "base64");
+        const payloadBuf = Buffer.from(parts[1]!, "base64url");
         const payload = JSON.parse(payloadBuf.toString("utf-8"));
         if (payload && payload.sub) {
           return payload as VerifiedAuthPayload;
