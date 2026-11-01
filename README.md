@@ -102,8 +102,8 @@ Comprehensive documentation is maintained in the [`docs/`](docs/) directory:
 - [x] **Phase 3: Authorization & Security Foundation** (Completed)
 - [x] **Phase 4: Core Case Management** (Completed)
 - [x] **Phase 5: AI Interview & Statements** (Completed)
-- [ ] **Phase 6: Evidence Management & Document Processing** (In Progress)
-- [ ] **Phase 7: AI Case Analysis & Verification**
+- [x] **Phase 6: Evidence Management & Document Processing** (Completed)
+- [ ] **Phase 7: AI Case Analysis & Verification** (In Progress)
 - [ ] **Phase 8: PDF Case Packet Generation**
 - [ ] **Phase 9: Lawyer Verification & Public Directory**
 - [ ] **Phase 10: Consultations & Case Sharing**

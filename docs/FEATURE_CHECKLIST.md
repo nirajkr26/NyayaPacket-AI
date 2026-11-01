@@ -93,16 +93,16 @@ Status Legend:
 ---
 
 ## Phase 6: Evidence Management & Document Processing
-- [ ] Configure Neon S3 private object storage client with AWS SDK v3.
-- [ ] Implement Presigned Upload URL generation with MIME whitelist and size limits (`POST /api/v1/cases/:id/evidence/upload-url`).
-- [ ] Implement Upload Complete confirmation with SHA-256 verification (`POST /api/v1/cases/:id/evidence/complete`).
-- [ ] Implement Evidence Listing and Metadata retrieval (`GET /api/v1/cases/:id/evidence`).
-- [ ] Implement Secure Presigned Download URL generation with permission gating (`GET /api/v1/cases/:id/evidence/:evidenceId/download`).
-- [ ] Implement BullMQ `evidence-processing-queue` and background worker.
-- [ ] Implement Multimodal Vision OCR extraction worker using Google Gemini API.
-- [ ] Implement Speech-to-Text audio transcription worker using Deepgram Nova-2 API.
-- [ ] Implement Evidence reprocessing endpoint (`POST /api/v1/cases/:id/evidence/:evidenceId/reprocess`).
-- [ ] End-to-end evidence ingestion and provenance linking tests.
+- [x] Configure Neon S3 private object storage client with AWS SDK v3.
+- [x] Implement Presigned Upload URL generation with MIME whitelist and size limits (`POST /api/v1/cases/:id/evidence/upload-url`).
+- [x] Implement Upload Complete confirmation with SHA-256 verification (`POST /api/v1/cases/:id/evidence/complete`).
+- [x] Implement Evidence Listing and Metadata retrieval (`GET /api/v1/cases/:id/evidence`).
+- [x] Implement Secure Presigned Download URL generation with permission gating (`GET /api/v1/cases/:id/evidence/:evidenceId/download`).
+- [x] Implement BullMQ `evidence-processing-queue` and background worker.
+- [x] Implement Multimodal Vision OCR extraction worker using Google Gemini API.
+- [x] Implement Speech-to-Text audio transcription worker using Deepgram Nova-2 API.
+- [x] Implement Evidence reprocessing endpoint (`POST /api/v1/cases/:id/evidence/:evidenceId/reprocess`).
+- [x] End-to-end evidence ingestion and provenance linking tests.
 
 ---
 

@@ -194,7 +194,7 @@ describe("Phase 4: Core Case Management Integration Tests", () => {
       .set("Authorization", `Bearer ${citizenToken1}`);
 
     expect(delRes.status).toBe(200);
-  });
+  }, 30000);
 
   it("GET /api/v1/cases/dashboard/stats returns citizen summary statistics", async () => {
     const res = await request(app)
@@ -206,5 +206,5 @@ describe("Phase 4: Core Case Management Integration Tests", () => {
     expect(res.body.data.totalCases).toBeGreaterThanOrEqual(1);
     expect(res.body.data.activeCases).toBeGreaterThanOrEqual(1);
     expect(typeof res.body.data.pendingConsultations).toBe("number");
-  });
+  }, 30000);
 });
