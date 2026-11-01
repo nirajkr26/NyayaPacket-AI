@@ -15,6 +15,8 @@ import { partiesRouter } from "./routes/parties.js";
 import { interviewsRouter } from "./routes/interviews.js";
 import { statementsRouter } from "./routes/statements.js";
 import { evidenceRouter } from "./routes/evidence.js";
+import { aiRouter } from "./routes/ai.js";
+import { timelineRouter } from "./routes/timeline.js";
 import { sendError } from "./utils/response.js";
 
 export const app = express();
@@ -83,6 +85,9 @@ app.use("/api/v1/cases/:caseId/parties", partiesRouter);
 app.use("/api/v1/cases/:caseId/interviews", interviewsRouter);
 app.use("/api/v1/cases/:caseId/statements", statementsRouter);
 app.use("/api/v1/cases/:caseId/evidence", evidenceRouter);
+app.use("/api/v1/cases/:caseId/ai", aiRouter);
+app.use("/api/v1/cases/:caseId/timeline", timelineRouter);
+app.use("/api/v1/cases/:caseId", timelineRouter); // Supports POST /api/v1/cases/:caseId/verify and GET /api/v1/cases/:caseId/verifications
 
 // 7. Base API v1 Entry Route
 const v1Router = express.Router();

@@ -107,17 +107,17 @@ Status Legend:
 ---
 
 ## Phase 7: AI Case Analysis & Verification
-- [ ] Implement AI Provider abstraction layer (`ILLMProvider`, `IVisionProvider`).
-- [ ] Implement Gemini provider implementation with structured JSON schema output (Zod).
-- [ ] Implement Case Summarization worker job (`AiRunType.CASE_SUMMARY`).
-- [ ] Implement Chronological Timeline extraction worker job (`AiRunType.TIMELINE_EXTRACTION`).
-- [ ] Implement Source Provenance Validator: verify all extracted facts cite real `evidenceId` or `statementId`.
-- [ ] Implement Missing Information & Inconsistency detection.
-- [ ] Implement Case Timeline endpoints (`GET /api/v1/cases/:id/timeline`).
-- [ ] Implement Citizen Timeline Event Verification & Correction (`PATCH /api/v1/cases/:id/timeline/:eventId`).
-- [ ] Implement Manual Timeline Event addition (`POST /api/v1/cases/:id/timeline`).
-- [ ] Implement Case Verification Snapshot creation (`POST /api/v1/cases/:id/verify`).
-- [ ] Validation tests ensuring zero hallucinated source references.
+- [x] Implement AI Provider abstraction layer (`ILLMProvider`, `IVisionProvider`).
+- [x] Implement Gemini provider implementation with structured JSON schema output (Zod).
+- [x] Implement Case Summarization worker job (`AiRunType.CASE_SUMMARY`).
+- [x] Implement Chronological Timeline extraction worker job (`AiRunType.TIMELINE_EXTRACTION`).
+- [x] Implement Source Provenance Validator: verify all extracted facts cite real `evidenceId` or `statementId`.
+- [x] Implement Missing Information & Inconsistency detection.
+- [x] Implement Case Timeline endpoints (`GET /api/v1/cases/:id/timeline`).
+- [x] Implement Citizen Timeline Event Verification & Correction (`PATCH /api/v1/cases/:id/timeline/:eventId`).
+- [x] Implement Manual Timeline Event addition (`POST /api/v1/cases/:id/timeline`).
+- [x] Implement Case Verification Snapshot creation (`POST /api/v1/cases/:id/verify`).
+- [x] Validation tests ensuring zero hallucinated source references.
 
 ---
 

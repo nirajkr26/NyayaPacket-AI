@@ -34,12 +34,19 @@ evidenceWorker.on("failed", (job, err) => {
   logger.error({ jobId: job?.id, err: err.message }, "Job failed");
 });
 
+import { createAiAnalysisWorker } from "./workers/aiAnalysisWorker.js";
+
+export const aiAnalysisWorker = createAiAnalysisWorker();
+
 // Graceful shutdown
 const signals: NodeJS.Signals[] = ["SIGTERM", "SIGINT"];
 for (const signal of signals) {
   process.on(signal, async () => {
-    logger.info(`Received ${signal}. Closing background worker...`);
-    await evidenceWorker.close();
+    logger.info(`Received ${signal}. Closing background workers...`);
+    await Promise.all([
+      evidenceWorker.close(),
+      aiAnalysisWorker.close(),
+    ]);
     process.exit(0);
   });
 }
