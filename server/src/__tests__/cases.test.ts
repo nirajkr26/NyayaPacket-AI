@@ -15,6 +15,7 @@ function createTestToken(payload: Record<string, any>): string {
 describe("Phase 4: Core Case Management Integration Tests", () => {
   let citizenToken1: string;
   let citizenToken2: string;
+  let lawyerToken: string;
   let citizenUser1: any;
   let citizenUser2: any;
   let category: any;
@@ -28,6 +29,8 @@ describe("Phase 4: Core Case Management Integration Tests", () => {
 
     citizenToken1 = createTestToken({ sub: sub1, email: `cit1.${ts}@test.local`, name: "Rohit Verma" });
     citizenToken2 = createTestToken({ sub: sub2, email: `cit2.${ts}@test.local`, name: "Sneha Patel" });
+    const subL = `case-lawyer-${ts}`;
+    lawyerToken = createTestToken({ sub: subL, email: `lawyer.${ts}@test.local`, name: "Adv. Meera", role: "LAWYER" });
 
     // Ensure category exists
     category = await prisma.caseCategory.findFirst({ where: { slug: "unpaid-wages" } });
@@ -120,6 +123,16 @@ describe("Phase 4: Core Case Management Integration Tests", () => {
 
     expect(res2.status).toBe(200);
     expect(res2.body.data.some((c: any) => c.id === createdCaseId)).toBe(false);
+  });
+
+  it("GET /api/v1/cases enforces tenant isolation against ungranted lawyers", async () => {
+    const res = await request(app)
+      .get("/api/v1/cases")
+      .set("Authorization", `Bearer ${lawyerToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.some((c: any) => c.id === createdCaseId)).toBe(false);
   });
 
   it("GET /api/v1/cases/:id returns case details for owner", async () => {

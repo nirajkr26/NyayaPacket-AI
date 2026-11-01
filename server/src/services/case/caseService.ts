@@ -35,6 +35,7 @@ export interface UpdateCaseInput {
 
 export interface ListCasesFilter {
   ownerId?: string;
+  lawyerProfileId?: string;
   status?: CaseStatus;
   categoryId?: string;
   search?: string;
@@ -137,6 +138,16 @@ export async function listCases(filter: ListCasesFilter) {
 
   const where: any = {};
   if (filter.ownerId) where.ownerId = filter.ownerId;
+  if (filter.lawyerProfileId) {
+    const now = new Date();
+    where.accessGrants = {
+      some: {
+        lawyerProfileId: filter.lawyerProfileId,
+        revokedAt: null,
+        OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+      },
+    };
+  }
   if (filter.status) where.status = filter.status;
   if (filter.categoryId) where.categoryId = filter.categoryId;
 

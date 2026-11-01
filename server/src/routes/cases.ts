@@ -8,6 +8,7 @@ import { canAccessCase } from "../services/authz/canAccessCase.js";
 import * as caseService from "../services/case/caseService.js";
 import { sendSuccess, sendError } from "../utils/response.js";
 import { ValidationError, ForbiddenError, NotFoundError } from "../utils/errors.js";
+import { prisma } from "../lib/prisma.js";
 
 export const casesRouter = Router();
 
@@ -94,9 +95,23 @@ casesRouter.get("/", async (req: Request, res: Response, next: NextFunction) => 
       limit: typeof limit === "string" ? parseInt(limit, 10) : 20,
     };
 
-    // If citizen, strictly limit to citizen's own cases
+    // Enforce tenant isolation based on role
     if (user.role === UserRole.CITIZEN) {
       filter.ownerId = user.id;
+    } else if (user.role === UserRole.LAWYER) {
+      const profile = await prisma.lawyerProfile.findUnique({
+        where: { userId: user.id },
+        select: { id: true },
+      });
+      if (!profile) {
+        return sendSuccess(res, [], "No shared cases found", 200, {
+          page: 1,
+          limit: filter.limit || 20,
+          total: 0,
+          totalPages: 0,
+        });
+      }
+      filter.lawyerProfileId = profile.id;
     }
 
     const result = await caseService.listCases(filter);
