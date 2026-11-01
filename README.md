@@ -64,6 +64,269 @@ flowchart TB
 
 ---
 
+## 🗄️ Database Entity-Relationship Diagram (ERD)
+
+The platform is backed by a 24-model relational schema in Neon PostgreSQL, enforced by Prisma ORM:
+
+```mermaid
+erDiagram
+    USER ||--o| LAWYER_PROFILE : "registers as"
+    USER ||--o{ CASE : "owns"
+    USER ||--o{ STATEMENT : "writes"
+    USER ||--o{ INTERVIEW_SESSION : "conducts"
+    USER ||--o{ EVIDENCE : "uploads"
+    USER ||--o{ CONSULTATION_REQUEST : "requests"
+    USER ||--o{ ACCESS_GRANT : "grants access"
+    USER ||--o{ CASE_COMMENT : "comments"
+    USER ||--o{ ACTION_ITEM : "creates / assigned"
+    USER ||--o{ CASE_VERIFICATION : "verifies"
+    USER ||--o{ NOTIFICATION : "receives"
+    USER ||--o{ AUDIT_LOG : "triggers"
+
+    LAWYER_PROFILE ||--o{ LAWYER_VERIFICATION_DOC : "submits"
+    LAWYER_PROFILE ||--o{ LAWYER_PRACTICE_AREA : "practices"
+    PRACTICE_AREA ||--o{ LAWYER_PRACTICE_AREA : "categorizes"
+    LAWYER_PROFILE ||--o{ LAWYER_AVAILABILITY : "configures"
+    LAWYER_PROFILE ||--o{ CONSULTATION_REQUEST : "receives"
+    LAWYER_PROFILE ||--o{ ACCESS_GRANT : "held by"
+    LAWYER_PROFILE ||--o{ CASE_COMMENT : "attaches notes"
+
+    CASE_CATEGORY ||--o{ CASE : "classifies"
+    CASE ||--o{ CASE_PARTY : "involves"
+    CASE ||--o{ CASE_STATUS_HISTORY : "tracks"
+    CASE ||--o{ STATEMENT : "contains"
+    CASE ||--o{ INTERVIEW_SESSION : "records"
+    CASE ||--o{ EVIDENCE : "stores"
+    CASE ||--o{ TIMELINE_EVENT : "chronicles"
+    CASE ||--o{ AI_RUN : "analyzed by"
+    CASE ||--o{ CASE_VERIFICATION : "signed off"
+    CASE ||--o{ PACKET_GENERATION : "compiles into"
+    CASE ||--o{ CONSULTATION_REQUEST : "discussed in"
+    CASE ||--o{ ACCESS_GRANT : "governs"
+    CASE ||--o{ CASE_COMMENT : "annotated with"
+    CASE ||--o{ ACTION_ITEM : "tracks tasks"
+
+    INTERVIEW_SESSION ||--o{ INTERVIEW_MESSAGE : "contains"
+    TIMELINE_EVENT ||--o{ TIMELINE_SOURCE : "referenced by"
+    EVIDENCE ||--o{ TIMELINE_SOURCE : "cites"
+    STATEMENT ||--o{ TIMELINE_SOURCE : "cites"
+
+    AI_RUN ||--o{ AI_OUTPUT_SOURCE : "justified by"
+    EVIDENCE ||--o{ AI_OUTPUT_SOURCE : "sources"
+    STATEMENT ||--o{ AI_OUTPUT_SOURCE : "sources"
+
+    USER {
+        string id PK
+        string authUserId UK
+        string email UK
+        string phone UK
+        string fullName
+        string role
+        boolean isActive
+    }
+
+    LAWYER_PROFILE {
+        string id PK
+        string userId FK
+        string barCouncilNumber UK
+        string stateBarCouncil
+        int enrollmentYear
+        string verificationStatus
+        boolean isListed
+        boolean isAvailable
+    }
+
+    CASE {
+        string id PK
+        string caseNumber UK
+        string title
+        string ownerId FK
+        string categoryId FK
+        string status
+        string priority
+        datetime incidentDate
+    }
+
+    EVIDENCE {
+        string id PK
+        string caseId FK
+        string uploadedById FK
+        string storageKey UK
+        string fileType
+        string sha256
+        string processingStatus
+        string extractedText
+    }
+
+    STATEMENT {
+        string id PK
+        string caseId FK
+        string authorId FK
+        string type
+        string content
+    }
+
+    TIMELINE_EVENT {
+        string id PK
+        string caseId FK
+        datetime eventDate
+        string title
+        string verificationStatus
+    }
+
+    CASE_VERIFICATION {
+        string id PK
+        string caseId FK
+        string verifiedById FK
+        int snapshotVersion
+        datetime verifiedAt
+    }
+
+    PACKET_GENERATION {
+        string id PK
+        string caseId FK
+        int version
+        string storageKey UK
+        string sha256
+        json snapshotData
+    }
+
+    ACCESS_GRANT {
+        string id PK
+        string caseId FK
+        string lawyerProfileId FK
+        boolean canViewSummary
+        boolean canViewEvidence
+        boolean canDownload
+        datetime expiresAt
+        datetime revokedAt
+    }
+
+    CONSULTATION_REQUEST {
+        string id PK
+        string citizenId FK
+        string lawyerProfileId FK
+        string caseId FK
+        string status
+        string mode
+        datetime scheduledAt
+    }
+```
+
+---
+
+## 🔄 Case Lifecycle & Pipeline State Machine
+
+Every case progresses through a deterministic, auditable lifecycle driven by citizen actions, background AI pipelines, and lawyer collaboration:
+
+```mermaid
+stateDiagram-v2
+    [*] --> NEW_CASE: Citizen creates case
+
+    NEW_CASE --> INTERVIEW_IN_PROGRESS: Start dynamic AI intake interview
+    INTERVIEW_IN_PROGRESS --> INTERVIEW_IN_PROGRESS: Multi-turn Q&A & Voice input
+    INTERVIEW_IN_PROGRESS --> EVIDENCE_COLLECTION: Interview compiled to Statements
+
+    EVIDENCE_COLLECTION --> EVIDENCE_COLLECTION: Presigned S3 upload & BullMQ OCR/Transcription
+    EVIDENCE_COLLECTION --> AI_DRAFT_GENERATED: Trigger AI Case Synthesis (Gemini LLM)
+
+    AI_DRAFT_GENERATED --> CITIZEN_VERIFICATION: Citizen reviews chronology & claims
+    CITIZEN_VERIFICATION --> CITIZEN_VERIFICATION: Citizen inline edits / disputes facts
+    CITIZEN_VERIFICATION --> READY_FOR_LAWYER: Citizen signs off verification snapshot
+
+    READY_FOR_LAWYER --> READY_FOR_LAWYER: Puppeteer compiles tamper-evident PDF Packet (SHA-256)
+    READY_FOR_LAWYER --> ACTION_PLAN_ACTIVE: Consultation accepted & Scoped AccessGrant issued
+
+    ACTION_PLAN_ACTIVE --> ACTION_PLAN_ACTIVE: Lawyer & Citizen track Action Items & Comments
+    ACTION_PLAN_ACTIVE --> CLOSED: Resolution completed
+    CLOSED --> ARCHIVED: Retained for record keeping
+    ARCHIVED --> [*]
+```
+
+---
+
+## 🛡️ Zero-Trust Authorization & Anti-IDOR Security Flow
+
+NyayaPacket AI enforces strict multi-tenant data isolation. PostgreSQL is the authoritative source for access control:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Citizen / Lawyer / Admin
+    participant Gateway as Express Gateway (/api/v1)
+    participant Auth as Better Auth / JWKS Guard
+    participant DB as Neon PostgreSQL
+    participant Evaluator as canAccessCase Evaluator
+    participant Resource as Case / Evidence / Packet
+
+    Client->>Gateway: HTTP Request with Bearer Token
+    Gateway->>Auth: Validate JWT Signature against JWKS
+    Auth->>DB: Query User record (role, isActive)
+    
+    alt User is inactive / suspended
+        DB-->>Gateway: User is suspended
+        Gateway-->>Client: 403 Forbidden (Account Suspended)
+    end
+
+    Auth-->>Gateway: Authenticated User (ID, Role)
+    Gateway->>Evaluator: canAccessCase(userId, caseId, requiredPermission)
+    
+    alt User is Case Owner (Citizen)
+        Evaluator-->>Gateway: Access Granted (Owner)
+    else User is Lawyer
+        Evaluator->>DB: Check LawyerProfile (verificationStatus == APPROVED)
+        Evaluator->>DB: Check AccessGrant (active, not revoked, not expired)
+        alt Valid Grant with required scope
+            Evaluator-->>Gateway: Access Granted (Scoped)
+        else Missing / Revoked Grant
+            Evaluator-->>Gateway: Access Denied (403 Forbidden)
+        end
+    else User is Admin
+        alt Request is for Case Metadata
+            Evaluator-->>Gateway: Access Granted (Admin Metadata Only)
+        else Request is for Citizen Evidence / Statements
+            Evaluator-->>Gateway: Access Denied (403 Admin Privacy Guard)
+        end
+    else Unrelated User
+        Evaluator-->>Gateway: Access Denied (404 / 403 Anti-IDOR)
+    end
+
+    Gateway->>Resource: Execute Operation
+    Resource-->>Client: 200 OK with Authorized Payload
+```
+
+---
+
+## ⚡ Asynchronous Processing & Document Pipeline
+
+Time-intensive document processing and PDF compilation are offloaded to BullMQ worker queues backed by Upstash Redis:
+
+```mermaid
+flowchart LR
+    subgraph Ingestion["1. Evidence Ingestion"]
+        Upload["Client Upload"] -->|SHA-256 Check| Presigned["S3 Presigned URL (15m TTL)"]
+        Presigned --> S3Bucket[("Neon Private S3 Bucket")]
+        Presigned --> BullMQEv["BullMQ: evidence-processing"]
+    end
+
+    subgraph Workers["2. Asynchronous Workers"]
+        BullMQEv -->|Image / Document| OCRWorker["Gemini Multimodal OCR"]
+        BullMQEv -->|Audio Note| DeepgramWorker["Deepgram Nova-2 STT"]
+        OCRWorker & DeepgramWorker -->|Save Extracted Text| NeonDB[("Neon PostgreSQL")]
+    end
+
+    subgraph Synthesis["3. Synthesis & Compilation"]
+        NeonDB -->|Evidence + Statements| AIService["AI Synthesis Engine"]
+        AIService -->|Chronology + Facts| Timeline["Structured Case Timeline"]
+        Timeline -->|Citizen Verified| PDFQueue["BullMQ: pdf-generation-queue"]
+        PDFQueue --> Puppeteer["Puppeteer Chromium Engine"]
+        Puppeteer -->|Render Legal Template| PacketPDF["PDF Case Packet (Tamper Hash)"]
+        PacketPDF --> S3Bucket
+    end
+```
+
+---
+
 ## 📚 Project Documentation
 
 Comprehensive documentation is maintained in the [`docs/`](docs/) directory:
