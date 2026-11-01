@@ -36,8 +36,10 @@ export function AuthCallbackPage() {
 
         // 1. Check if Neon Better Auth has an active session from Google OAuth redirect
         try {
-          const authUrl =
-            "https://ep-empty-butterfly-b30wnp3m.neonauth.c-4.ap-southeast-1.aws.neon.tech/neondb/auth/get-session";
+          const authBase =
+            import.meta.env.VITE_AUTH_URL ||
+            "https://ep-empty-butterfly-b30wnp3m.neonauth.c-4.ap-southeast-1.aws.neon.tech/neondb/auth";
+          const authUrl = `${authBase.replace(/\/+$/, "")}/get-session`;
           const sessionRes = await fetch(authUrl, {
             method: "GET",
             credentials: "include",
