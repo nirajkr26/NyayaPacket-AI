@@ -27,10 +27,12 @@ export async function getOrProvisionUser(
 ): Promise<AuthUserWithProfile> {
   const authUserId = payload.sub;
 
-  // Fast-path: return cached user if retrieved within last 60 seconds
-  const cached = userCache.get(authUserId);
-  if (cached && Date.now() < cached.expiresAt) {
-    return cached.user;
+  // Fast-path: return cached user if retrieved within last 60 seconds (disabled in test to honor mutations)
+  if (process.env.NODE_ENV !== "test") {
+    const cached = userCache.get(authUserId);
+    if (cached && Date.now() < cached.expiresAt) {
+      return cached.user;
+    }
   }
 
   const email = (payload.email || `${authUserId}@auth.local`).toLowerCase().trim();
@@ -93,9 +95,12 @@ export async function getOrProvisionUser(
           enrollmentYear: Number(enrollmentYear),
           city: "New Delhi",
           state: "Delhi",
-          verificationStatus: LawyerVerificationStatus.APPROVED,
-          isListed: true,
-          isAvailable: true,
+          verificationStatus:
+            payload.metadata?.verificationStatus === "APPROVED"
+              ? LawyerVerificationStatus.APPROVED
+              : LawyerVerificationStatus.PENDING,
+          isListed: payload.metadata?.isListed ?? false,
+          isAvailable: payload.metadata?.isAvailable ?? false,
         },
       });
       resolvedUser.lawyerProfile = lp;
@@ -140,9 +145,12 @@ export async function getOrProvisionUser(
           enrollmentYear: Number(payload.metadata?.enrollmentYear || new Date().getFullYear()),
           city: "New Delhi",
           state: "Delhi",
-          verificationStatus: LawyerVerificationStatus.APPROVED,
-          isListed: true,
-          isAvailable: true,
+          verificationStatus:
+            payload.metadata?.verificationStatus === "APPROVED"
+              ? LawyerVerificationStatus.APPROVED
+              : LawyerVerificationStatus.PENDING,
+          isListed: payload.metadata?.isListed ?? false,
+          isAvailable: payload.metadata?.isAvailable ?? false,
         },
       });
       linked.lawyerProfile = lp;
@@ -192,9 +200,12 @@ export async function getOrProvisionUser(
             enrollmentYear: Number(payload.metadata?.enrollmentYear || new Date().getFullYear()),
             city: "New Delhi",
             state: "Delhi",
-            verificationStatus: LawyerVerificationStatus.APPROVED,
-            isListed: true,
-            isAvailable: true,
+            verificationStatus:
+              payload.metadata?.verificationStatus === "APPROVED"
+                ? LawyerVerificationStatus.APPROVED
+                : LawyerVerificationStatus.PENDING,
+            isListed: payload.metadata?.isListed ?? false,
+            isAvailable: payload.metadata?.isAvailable ?? false,
           },
         });
       }

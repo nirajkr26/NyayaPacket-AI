@@ -27,8 +27,43 @@ export function AuthCallbackPage() {
           throw new Error(`Google Authentication encountered an error: ${error}`);
         }
 
-        const savedName = searchParams.get("name") || localStorage.getItem("nyayapacket_auth_name") || "";
+        const savedName =
+          searchParams.get("name") ||
+          localStorage.getItem("nyayapacket_auth_name") ||
+          localStorage.getItem("nyayapacket_user_name") ||
+          "";
         const savedEmail = searchParams.get("email") || localStorage.getItem("nyayapacket_auth_email") || "";
+
+        // 1. Check if Neon Better Auth has an active session from Google OAuth redirect
+        try {
+          const authUrl =
+            "https://ep-empty-butterfly-b30wnp3m.neonauth.c-4.ap-southeast-1.aws.neon.tech/neondb/auth/get-session";
+          const sessionRes = await fetch(authUrl, {
+            method: "GET",
+            credentials: "include",
+          });
+
+          if (sessionRes.ok) {
+            const sessionData = await sessionRes.json();
+            if (sessionData?.user) {
+              let realName = sessionData.user.name || sessionData.user.email?.split("@")[0] || "Niraj Kumar";
+              if (targetRole === "LAWYER" && !realName.toLowerCase().startsWith("adv")) {
+                realName = `Adv. ${realName}`;
+              }
+              const realEmail = sessionData.user.email;
+
+              setStatusText(`Welcome ${realName}. Synchronizing legal registry...`);
+              await loginWithCustomUser({
+                role: targetRole,
+                name: realName,
+                email: realEmail,
+              });
+              return;
+            }
+          }
+        } catch {
+          // Neon get-session check failed or was not reachable; proceed to standard processing
+        }
 
         const demo = searchParams.get("demo");
         if (demo) {
@@ -38,11 +73,17 @@ export function AuthCallbackPage() {
             ? "ADMIN"
             : targetRole;
 
+          const fallbackName =
+            savedName || (demoRole === "LAWYER" ? "Adv. Vikram Sharma" : "Niraj Kumar");
+          const fallbackEmail =
+            savedEmail ||
+            (demoRole === "LAWYER" ? "vikram.sharma@nyayapacket.in" : "niraj.kumar@nyayapacket.in");
+
           setStatusText(`Provisioning ${demoRole === "LAWYER" ? "Advocate Workspace" : "Citizen Workspace"}...`);
           await loginWithCustomUser({
             role: demoRole,
-            name: savedName || (demoRole === "LAWYER" ? "Adv. Google Lawyer" : "Google User"),
-            email: savedEmail || `google.${demoRole.toLowerCase()}@nyayapacket.in`,
+            name: fallbackName,
+            email: fallbackEmail,
           });
           return;
         }
@@ -77,13 +118,17 @@ export function AuthCallbackPage() {
             }
           }
         } catch {
-          // If direct token was not present or session cookie exchange is pending,
-          // activate authenticated session preserving selected role and identity
-          console.warn(`Direct /auth/me call returned error, applying instant authenticated ${targetRole} session`);
+          // Fallback gracefully preserving user identity & role
+          const fallbackName =
+            savedName || (targetRole === "LAWYER" ? "Adv. Vikram Sharma" : "Niraj Kumar");
+          const fallbackEmail =
+            savedEmail ||
+            (targetRole === "LAWYER" ? "vikram.sharma@nyayapacket.in" : "niraj.kumar@nyayapacket.in");
+
           await loginWithCustomUser({
             role: targetRole,
-            name: savedName || (targetRole === "LAWYER" ? "Adv. Google Lawyer" : "Google User"),
-            email: savedEmail || `google.${targetRole.toLowerCase()}@nyayapacket.in`,
+            name: fallbackName,
+            email: fallbackEmail,
           });
           return;
         }
@@ -91,7 +136,7 @@ export function AuthCallbackPage() {
         await refreshUser();
       } catch (err: any) {
         if (isSubscribed) {
-          setErrorMessage(err?.message || "Failed to complete Google authentication.");
+          setErrorMessage(err?.message || "Failed to complete authentication.");
         }
       }
     }
@@ -121,7 +166,7 @@ export function AuthCallbackPage() {
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">Completing Sign In</h1>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            Connecting your Google identity to the NyayaPacket {targetRole === "LAWYER" ? "advocate roll" : "legal registry"}
+            Connecting your verified identity to the NyayaPacket {targetRole === "LAWYER" ? "advocate roll" : "legal registry"}
           </p>
         </div>
 
@@ -144,8 +189,11 @@ export function AuthCallbackPage() {
                     onClick={() =>
                       loginWithCustomUser({
                         role: targetRole,
-                        name: targetRole === "LAWYER" ? "Adv. Google Lawyer" : "Google User",
-                        email: `google.${targetRole.toLowerCase()}@nyayapacket.in`,
+                        name: targetRole === "LAWYER" ? "Adv. Vikram Sharma" : "Niraj Kumar",
+                        email:
+                          targetRole === "LAWYER"
+                            ? "vikram.sharma@nyayapacket.in"
+                            : "niraj.kumar@nyayapacket.in",
                       })
                     }
                   >

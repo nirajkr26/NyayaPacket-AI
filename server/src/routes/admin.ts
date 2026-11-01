@@ -9,6 +9,7 @@ import { logAuditEvent } from "../services/audit/auditLogger.js";
 import { evidenceQueue } from "../queues/evidenceQueue.js";
 import { aiAnalysisQueue } from "../queues/aiAnalysisQueue.js";
 import { pdfQueue } from "../queues/pdfQueue.js";
+import { clearUserCache } from "../services/auth/userProvisioner.js";
 
 export const adminRouter = Router();
 
@@ -182,6 +183,8 @@ adminRouter.patch("/users/:id/status", async (req, res) => {
       data: { isActive },
       select: { id: true, fullName: true, email: true, role: true, isActive: true },
     });
+
+    clearUserCache(user.authUserId);
 
     // Write audit log
     await logAuditEvent({

@@ -160,6 +160,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       localStorage.setItem("nyayapacket_token", demoToken);
       localStorage.setItem("nyayapacket_auth_role", role);
+      if (name) localStorage.setItem("nyayapacket_user_name", name);
       setToken(demoToken);
 
       // Call /api/v1/auth/me to provision user in Neon PostgreSQL with their designated role & name
@@ -167,6 +168,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (res.data) {
         setUser(res.data);
         localStorage.setItem("nyayapacket_user", JSON.stringify(res.data));
+        if (res.data.fullName) localStorage.setItem("nyayapacket_user_name", res.data.fullName);
       }
     } catch (err: any) {
       console.error("Failed custom user login:", err);
@@ -217,10 +219,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw new Error("No OAuth redirect URL returned from authentication provider");
     } catch (err) {
       console.warn("Neon Google Auth request failed, activating role-based session:", err);
+      const rememberedName = localStorage.getItem("nyayapacket_user_name");
+      const resolvedName =
+        customName ||
+        rememberedName ||
+        (role === "LAWYER" ? "Adv. Vikram Sharma" : "Niraj Kumar");
+      const resolvedEmail =
+        customEmail ||
+        (role === "LAWYER" ? "vikram.sharma@nyayapacket.in" : "niraj.kumar@nyayapacket.in");
+
       await loginWithCustomUser({
         role,
-        name: customName || (role === "LAWYER" ? "Adv. Google Lawyer" : "Google User"),
-        email: customEmail || `google.${role.toLowerCase()}@nyayapacket.in`,
+        name: resolvedName,
+        email: resolvedEmail,
       });
     } finally {
       setIsLoading(false);
