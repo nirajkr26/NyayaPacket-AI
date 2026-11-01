@@ -43,6 +43,9 @@ export function LawyerOnboardingPage() {
   const [consultationInPerson, setConsultationInPerson] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [docType, setDocType] = useState("Bar Council Enrollment Certificate");
+  const [docFile, setDocFile] = useState<File | null>(null);
+  const [docSuccess, setDocSuccess] = useState(false);
 
   // Fetch current lawyer profile
   const { data: profile, isLoading } = useQuery<any>({
@@ -96,6 +99,29 @@ export function LawyerOnboardingPage() {
     },
     onError: (err: any) => {
       setError(err?.message || "Failed to update advocate profile");
+    },
+  });
+
+  // Upload Document Mutation
+  const uploadDocMutation = useMutation({
+    mutationFn: async () => {
+      if (!docFile) throw new Error("Please select a verification document to upload.");
+      const storageKey = `lawyers/${profile?.id || "doc"}/${Date.now()}-${docFile.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+      const res = await api.post("/lawyers/me/documents", {
+        documentType: docType,
+        originalName: docFile.name,
+        storageKey,
+      });
+      return res.data;
+    },
+    onSuccess: () => {
+      setDocFile(null);
+      setDocSuccess(true);
+      setTimeout(() => setDocSuccess(false), 3000);
+      queryClient.invalidateQueries({ queryKey: ["lawyer-profile-me"] });
+    },
+    onError: (err: any) => {
+      setError(err?.message || "Failed to submit verification certificate");
     },
   });
 
@@ -282,6 +308,91 @@ export function LawyerOnboardingPage() {
               <Save className="w-4 h-4" /> Save Profile Details
             </Button>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Document Verification Upload Card */}
+      <Card className="glass-card border-border">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <UploadCloud className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            <CardTitle className="text-lg font-bold text-foreground">Bar Council Verification Documents</CardTitle>
+          </div>
+          <CardDescription className="text-xs text-muted-foreground">
+            Upload certified copy of Bar Council Enrollment Certificate or Advocate Identity Card to complete accreditation.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          {docSuccess && (
+            <div className="p-3.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold flex items-center gap-2">
+              <Check className="w-4 h-4" /> Verification document submitted for registrar review!
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-foreground">Document Type *</label>
+              <select
+                aria-label="Document Type"
+                className="w-full h-10 px-3 rounded-lg border border-input bg-background text-foreground text-xs focus:outline-none focus:ring-1 focus:ring-primary"
+                value={docType}
+                onChange={(e) => setDocType(e.target.value)}
+              >
+                <option value="Bar Council Enrollment Certificate">Bar Council Enrollment Certificate</option>
+                <option value="State Bar Council ID Card">State Bar Council ID Card</option>
+                <option value="All India Bar Exam (AIBE) Certificate">All India Bar Exam (AIBE) Certificate</option>
+              </select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-foreground">Select File (PDF, PNG, JPG) *</label>
+              <Input
+                type="file"
+                accept=".pdf,image/png,image/jpeg"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    setDocFile(e.target.files[0]);
+                  }
+                }}
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end">
+            <Button
+              variant="default"
+              size="sm"
+              disabled={!docFile || uploadDocMutation.isPending}
+              isLoading={uploadDocMutation.isPending}
+              onClick={() => uploadDocMutation.mutate()}
+              className="gap-2 font-bold shadow-sm bg-emerald-600 hover:bg-emerald-700 text-white"
+            >
+              <UploadCloud className="w-4 h-4" /> Submit Document for Verification
+            </Button>
+          </div>
+
+          {/* Submitted Documents Registry */}
+          {profile?.verificationDocuments && profile.verificationDocuments.length > 0 && (
+            <div className="pt-4 border-t border-border space-y-3">
+              <h4 className="text-xs font-bold text-foreground uppercase tracking-wider">Submitted Credentials Manifest</h4>
+              <div className="space-y-2">
+                {profile.verificationDocuments.map((doc: any) => (
+                  <div key={doc.id} className="p-3 rounded-xl bg-muted/40 border border-border flex items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-2.5 truncate">
+                      <FileText className="w-4 h-4 text-primary shrink-0" />
+                      <div className="truncate">
+                        <span className="font-semibold text-foreground block truncate">{doc.originalName}</span>
+                        <span className="text-[11px] text-muted-foreground">{doc.documentType}</span>
+                      </div>
+                    </div>
+                    <Badge variant={doc.status === "APPROVED" ? "success" : doc.status === "REJECTED" ? "destructive" : "warning"} className="text-[10px] shrink-0">
+                      {doc.status}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
