@@ -37,8 +37,6 @@ describe("Phase 2: Authentication & User Provisioning", () => {
         authUserId: { in: [citizenSub, lawyerSub] },
       },
     });
-    await prisma.$disconnect();
-    redis.disconnect();
   });
 
   it("Rejects unauthenticated request with 401 Unauthorized", async () => {

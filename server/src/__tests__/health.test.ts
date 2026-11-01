@@ -5,10 +5,6 @@ import { prisma } from "../lib/prisma.js";
 import { redis } from "../lib/redis.js";
 
 describe("Phase 1: Backend Foundation & Health Probes", () => {
-  afterAll(async () => {
-    await prisma.$disconnect();
-    redis.disconnect();
-  });
 
   it("GET /health returns 200 and liveness payload", async () => {
     const res = await request(app).get("/health");

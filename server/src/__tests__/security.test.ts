@@ -135,8 +135,6 @@ describe("Phase 3: Release-Blocking Security & Authorization Suite", () => {
         where: { id: { in: userIds } },
       });
     }
-    await prisma.$disconnect();
-    redis.disconnect();
   }, 30000);
 
   it("SEC-03: Blocks inactive/suspended user from accessing case", async () => {

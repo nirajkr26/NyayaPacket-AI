@@ -68,16 +68,16 @@ Status Legend:
 ---
 
 ## Phase 4: Core Case Management
-- [ ] Implement Case Categories listing endpoint (`GET /api/v1/categories`).
-- [ ] Implement Case Creation endpoint with auto-generated case numbers (`POST /api/v1/cases`).
-- [ ] Implement Citizen Case Listing with filtering and pagination (`GET /api/v1/cases`).
-- [ ] Implement Case Details endpoint (`GET /api/v1/cases/:id`).
-- [ ] Implement Case Update endpoint (`PATCH /api/v1/cases/:id`).
-- [ ] Implement Case Status History tracking on status transitions (`CaseStatusHistory`).
-- [ ] Implement Case Parties management (`GET`, `POST`, `PATCH`, `DELETE /api/v1/cases/:id/parties`).
-- [ ] Implement Case archiving and closing rules.
-- [ ] Citizen Dashboard summary API (`GET /api/v1/cases/dashboard/stats`).
-- [ ] Integration tests verifying citizen case ownership and isolation.
+- [x] Implement Case Categories listing endpoint (`GET /api/v1/categories`).
+- [x] Implement Case Creation endpoint with auto-generated case numbers (`POST /api/v1/cases`).
+- [x] Implement Citizen Case Listing with filtering and pagination (`GET /api/v1/cases`).
+- [x] Implement Case Details endpoint (`GET /api/v1/cases/:id`).
+- [x] Implement Case Update endpoint (`PATCH /api/v1/cases/:id`).
+- [x] Implement Case Status History tracking on status transitions (`CaseStatusHistory`).
+- [x] Implement Case Parties management (`GET`, `POST`, `PATCH`, `DELETE /api/v1/cases/:id/parties`).
+- [x] Implement Case archiving and closing rules.
+- [x] Citizen Dashboard summary API (`GET /api/v1/cases/dashboard/stats`).
+- [x] Integration tests verifying citizen case ownership and isolation.
 
 ---
 
