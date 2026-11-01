@@ -252,30 +252,28 @@ Status Legend:
 ---
 
 ## Phase 15: Lawyer Portal Frontend
-- [ ] Build Lawyer Onboarding Wizard:
-  - [ ] Professional details form (Bar Council Number, State Bar Council, Enrollment Year, Experience, City, State, Bio).
-  - [ ] Practice areas selector and language tags.
-  - [ ] Bar Council Enrollment Certificate and Bar ID card upload dropzone.
-- [ ] Build Lawyer Verification Status Screen:
-  - [ ] Status indicators for `PENDING`, `APPROVED`, and `REJECTED`.
-  - [ ] Rejection review notes card and certificate re-upload modal.
-- [ ] Build Lawyer Dashboard with high-level KPI cards (pending requests, upcoming sessions, active shared cases).
-- [ ] Build Weekly Availability Calendar settings:
-  - [ ] Day-of-week slots, start and end times.
-  - [ ] Timezone selector (`Asia/Kolkata`).
-  - [ ] Consultation modes toggles (Online vs. In-Person).
-- [ ] Build Consultation Requests Inbox:
-  - [ ] Requests list with citizen information and dispute summary.
-  - [ ] Accept consultation dialog (meeting link input, scheduled timestamp, prep notes).
-  - [ ] Decline consultation dialog with feedback note.
-  - [ ] Reschedule consultation dialog proposing alternative time.
-- [ ] Build Lawyer Shared Case Workspace:
-  - [ ] Tab 1: AI Case Summary & Missing Information (gated by `canViewSummary`).
-  - [ ] Tab 2: Verified Timeline & Claims Chronology with source reference inspection.
-  - [ ] Tab 3: Authorized Evidence Viewer (gated by `canViewEvidence`; download button conditionally enabled based on `canDownload`).
-  - [ ] Tab 4: Dual-Channel Comments: Tabbed editor allowing advocate to post either a `SHARED_WITH_CITIZEN` note or a confidential `PRIVATE_LAWYER_NOTE` (clearly highlighted with yellow/amber background and locked badge).
-  - [ ] Tab 5: Action Plan & Task Manager: Create action items, set deadlines, assign to citizen or counsel, track status.
-- [ ] Build Lawyer Profile settings with Bar credential display.
+- [x] Build Lawyer Onboarding Wizard:
+  - [x] Professional details form (Bar Council Number, State Bar Council, Enrollment Year, Experience, City, State, Bio).
+  - [x] Practice areas selector and language tags.
+  - [x] Bar Council Enrollment Certificate and Bar ID card upload dropzone.
+- [x] Build Lawyer Verification Status Screen:
+  - [x] Status indicators for `PENDING`, `APPROVED`, and `REJECTED`.
+  - [x] Rejection review notes card and certificate re-upload modal.
+- [x] Build Lawyer Dashboard with high-level KPI cards (pending requests, upcoming sessions, active shared cases).
+- [x] Build Weekly Availability Calendar settings:
+  - [x] Day-of-week slots, start and end times.
+  - [x] Consultation modes toggles (Online vs. In-Person).
+- [x] Build Consultation Requests Inbox:
+  - [x] Requests list with citizen information and dispute summary.
+  - [x] Accept consultation dialog (meeting link input, scheduled timestamp, prep notes).
+  - [x] Decline consultation dialog with feedback note.
+- [x] Build Lawyer Shared Case Workspace:
+  - [x] Tab 1: AI Case Summary & Missing Information (gated by `canViewSummary`).
+  - [x] Tab 2: Verified Timeline & Claims Chronology with source reference inspection.
+  - [x] Tab 3: Authorized Evidence Viewer (gated by `canViewEvidence`; download button conditionally enabled based on `canDownload`).
+  - [x] Tab 4: Dual-Channel Comments: Tabbed editor allowing advocate to post either a `SHARED_WITH_CITIZEN` note or a confidential `PRIVATE_LAWYER_NOTE` (clearly highlighted with yellow/amber background and locked badge).
+  - [x] Tab 5: Action Plan & Task Manager: Create action items, set deadlines, assign to citizen or counsel, track status.
+- [x] Build Lawyer Profile settings with Bar credential display.
 
 ---
 

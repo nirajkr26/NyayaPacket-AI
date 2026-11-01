@@ -19,6 +19,12 @@ import { CitizenDashboard } from "./pages/citizen/CitizenDashboard";
 import { CreateCaseWizard } from "./pages/citizen/CreateCaseWizard";
 import { CaseDetailPage } from "./pages/citizen/CaseDetailPage";
 
+// Phase 15 Lawyer Portal Pages
+import { LawyerLayout } from "./components/lawyer/LawyerLayout";
+import { LawyerDashboard } from "./pages/lawyer/LawyerDashboard";
+import { LawyerOnboardingPage } from "./pages/lawyer/LawyerOnboardingPage";
+import { SharedCaseWorkspacePage } from "./pages/lawyer/SharedCaseWorkspacePage";
+
 // Global React Query Client with smart defaults
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -62,13 +68,19 @@ export default function App() {
 
               {/* Lawyer Portal (Phase 15) */}
               <Route
-                path="/lawyer/*"
+                path="/lawyer"
                 element={
                   <ProtectedRoute allowedRoles={["LAWYER"]}>
-                    <div className="p-8 text-center">Advocate Portal Loading...</div>
+                    <LawyerLayout />
                   </ProtectedRoute>
                 }
-              />
+              >
+                <Route index element={<Navigate to="/lawyer/dashboard" replace />} />
+                <Route path="dashboard" element={<LawyerDashboard />} />
+                <Route path="consultations" element={<LawyerDashboard />} />
+                <Route path="onboarding" element={<LawyerOnboardingPage />} />
+                <Route path="cases/:caseId" element={<SharedCaseWorkspacePage />} />
+              </Route>
 
               {/* Admin Portal (Phase 16) */}
               <Route
