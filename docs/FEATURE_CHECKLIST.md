@@ -122,9 +122,9 @@ Status Legend:
 ---
 
 ## Phase 8: PDF Case Packet Generation
-- [ ] Design HTML/CSS legal case packet template with official LegalTech branding.
-- [ ] Integrate Puppeteer for server-side headless PDF rendering.
-- [ ] Compile packet sections:
+- [x] Design HTML/CSS legal case packet template with official LegalTech branding.
+- [x] Integrate Puppeteer for server-side headless PDF rendering.
+- [x] Compile packet sections:
   - Header, Unique Reference Number, and Legal AI Disclaimer.
   - Citizen & Opposing Party Details.
   - Verified Case Summary & Incident Overview.
@@ -132,10 +132,10 @@ Status Legend:
   - Evidence Index with SHA-256 Checksums.
   - Identified Missing Information & Questions for the Advocate.
   - Citizen Verification Record & Timestamp.
-- [ ] Implement BullMQ `pdf-generation-queue` and worker.
-- [ ] Upload generated PDF to private S3 and record `PacketGeneration` record.
-- [ ] Implement Packet listing and secure download endpoints (`GET /api/v1/cases/:id/packets`).
-- [ ] Tests verifying packet generation, version incrementing, and download authorization.
+- [x] Implement BullMQ `pdf-generation-queue` and worker.
+- [x] Upload generated PDF to private S3 and record `PacketGeneration` record.
+- [x] Implement Packet listing and secure download endpoints (`GET /api/v1/cases/:id/packets`).
+- [x] Tests verifying packet generation, version incrementing, and download authorization.
 
 ---
 
