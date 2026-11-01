@@ -43,7 +43,7 @@ const STATE_BAR_COUNCILS = [
 ];
 
 export function RegisterPage() {
-  const { loginWithMockRole, loginWithGoogle, isAuthenticated, user, isLoading } = useAuth();
+  const { loginWithCustomUser, loginWithGoogle, isAuthenticated, user, isLoading } = useAuth();
   const navigate = useNavigate();
 
   const [selectedRole, setSelectedRole] = useState<UserRole>("CITIZEN");
@@ -61,7 +61,7 @@ export function RegisterPage() {
     setError(null);
     setIsGoogleLoading(true);
     try {
-      await loginWithGoogle();
+      await loginWithGoogle(selectedRole, fullName.trim() || undefined, email.trim() || undefined);
     } catch (err: any) {
       setError(err?.message || "Failed to initiate Google Sign Up");
     } finally {
@@ -92,8 +92,15 @@ export function RegisterPage() {
     }
 
     try {
-      // In local demo / development, sign up directly through provisioner
-      await loginWithMockRole(selectedRole);
+      await loginWithCustomUser({
+        role: selectedRole,
+        name: fullName.trim(),
+        email: email.trim().toLowerCase(),
+        phone: phone.trim() || undefined,
+        barCouncilNumber: barCouncilNumber.trim() || undefined,
+        stateBarCouncil,
+        enrollmentYear: parseInt(enrollmentYear, 10) || undefined,
+      });
     } catch (err: any) {
       setError(err?.message || "Failed to create account");
     }
@@ -151,7 +158,7 @@ export function RegisterPage() {
               disabled={isLoading}
             >
               <GoogleIcon className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
-              <span>Sign up with Google</span>
+              <span>Sign up with Google as {selectedRole === "LAWYER" ? "Advocate" : "Citizen"}</span>
             </Button>
 
             {/* Divider */}

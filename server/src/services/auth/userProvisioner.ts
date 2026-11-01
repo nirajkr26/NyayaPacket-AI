@@ -45,17 +45,62 @@ export async function getOrProvisionUser(
 
   if (existingUser) {
     let resolvedUser = existingUser as AuthUserWithProfile;
-    // Optionally update profile details if changed
-    if (existingUser.fullName !== fullName || existingUser.profileImage !== profileImage) {
+    const requestedRole =
+      payload.role === "LAWYER" || payload.metadata?.role === "LAWYER"
+        ? UserRole.LAWYER
+        : payload.role === "ADMIN" || payload.metadata?.role === "ADMIN"
+        ? UserRole.ADMIN
+        : payload.role === "CITIZEN" || payload.metadata?.role === "CITIZEN"
+        ? UserRole.CITIZEN
+        : null;
+
+    const updates: any = {};
+    if (fullName && fullName !== existingUser.fullName) {
+      updates.fullName = fullName;
+    }
+    if (profileImage && profileImage !== existingUser.profileImage) {
+      updates.profileImage = profileImage;
+    }
+    if (requestedRole && requestedRole !== existingUser.role) {
+      updates.role = requestedRole;
+    }
+    if (payload.metadata?.phone && payload.metadata.phone !== existingUser.phone) {
+      updates.phone = payload.metadata.phone;
+    }
+
+    if (Object.keys(updates).length > 0) {
       resolvedUser = (await prisma.user.update({
         where: { id: existingUser.id },
-        data: {
-          fullName: existingUser.fullName || fullName,
-          profileImage: existingUser.profileImage || profileImage,
-        },
+        data: updates,
         include: { lawyerProfile: true },
       })) as AuthUserWithProfile;
     }
+
+    // If user is a LAWYER but has no lawyerProfile yet, create one
+    if (resolvedUser.role === UserRole.LAWYER && !resolvedUser.lawyerProfile) {
+      const barCouncilNumber =
+        payload.metadata?.barCouncilNumber || `TEMP-${Date.now().toString().slice(-6)}`;
+      const stateBarCouncil =
+        payload.metadata?.stateBarCouncil || "Bar Council of Delhi";
+      const enrollmentYear =
+        payload.metadata?.enrollmentYear || new Date().getFullYear();
+
+      const lp = await prisma.lawyerProfile.create({
+        data: {
+          userId: resolvedUser.id,
+          barCouncilNumber,
+          stateBarCouncil,
+          enrollmentYear: Number(enrollmentYear),
+          city: "New Delhi",
+          state: "Delhi",
+          verificationStatus: LawyerVerificationStatus.APPROVED,
+          isListed: true,
+          isAvailable: true,
+        },
+      });
+      resolvedUser.lawyerProfile = lp;
+    }
+
     userCache.set(authUserId, { user: resolvedUser, expiresAt: Date.now() + 60_000 });
     return resolvedUser;
   }
@@ -68,14 +113,41 @@ export async function getOrProvisionUser(
 
   if (userByEmail) {
     logger.info({ userId: userByEmail.id, authUserId }, "Linking existing email user with authUserId");
+    const requestedRole =
+      payload.role === "LAWYER" || payload.metadata?.role === "LAWYER"
+        ? UserRole.LAWYER
+        : payload.role === "ADMIN" || payload.metadata?.role === "ADMIN"
+        ? UserRole.ADMIN
+        : userByEmail.role;
+
     const linked = (await prisma.user.update({
       where: { id: userByEmail.id },
       data: {
         authUserId,
+        role: requestedRole,
+        fullName: fullName || userByEmail.fullName,
         profileImage: userByEmail.profileImage || profileImage,
       },
       include: { lawyerProfile: true },
     })) as AuthUserWithProfile;
+
+    if (linked.role === UserRole.LAWYER && !linked.lawyerProfile) {
+      const lp = await prisma.lawyerProfile.create({
+        data: {
+          userId: linked.id,
+          barCouncilNumber: payload.metadata?.barCouncilNumber || `TEMP-${Date.now().toString().slice(-6)}`,
+          stateBarCouncil: payload.metadata?.stateBarCouncil || "Bar Council of Delhi",
+          enrollmentYear: Number(payload.metadata?.enrollmentYear || new Date().getFullYear()),
+          city: "New Delhi",
+          state: "Delhi",
+          verificationStatus: LawyerVerificationStatus.APPROVED,
+          isListed: true,
+          isAvailable: true,
+        },
+      });
+      linked.lawyerProfile = lp;
+    }
+
     userCache.set(authUserId, { user: linked, expiresAt: Date.now() + 60_000 });
     return linked;
   }
@@ -84,7 +156,13 @@ export async function getOrProvisionUser(
   // Determine desired registration role from trusted token claims (defaults to CITIZEN)
   const isLawyerRegistration =
     payload.role === "LAWYER" || payload.metadata?.role === "LAWYER";
-  const assignedRole = isLawyerRegistration ? UserRole.LAWYER : UserRole.CITIZEN;
+  const isAdminRegistration =
+    payload.role === "ADMIN" || payload.metadata?.role === "ADMIN";
+  const assignedRole = isLawyerRegistration
+    ? UserRole.LAWYER
+    : isAdminRegistration
+    ? UserRole.ADMIN
+    : UserRole.CITIZEN;
 
   logger.info({ authUserId, email, role: assignedRole }, "Provisioning new application user");
 
@@ -95,25 +173,28 @@ export async function getOrProvisionUser(
           authUserId,
           email,
           fullName,
+          phone: payload.metadata?.phone || null,
           profileImage,
           role: assignedRole,
           isActive: true,
         },
       });
 
-      // If lawyer registration, create initial PENDING LawyerProfile
+      // If lawyer registration, create initial LawyerProfile
       if (assignedRole === UserRole.LAWYER) {
         await tx.lawyerProfile.create({
           data: {
             userId: createdUser.id,
-            barCouncilNumber: `TEMP-${Date.now().toString().slice(-6)}`,
-            stateBarCouncil: "Pending Submission",
-            enrollmentYear: new Date().getFullYear(),
-            city: "Pending",
-            state: "Pending",
-            verificationStatus: LawyerVerificationStatus.PENDING,
-            isListed: false,
-            isAvailable: false,
+            barCouncilNumber:
+              payload.metadata?.barCouncilNumber || `TEMP-${Date.now().toString().slice(-6)}`,
+            stateBarCouncil:
+              payload.metadata?.stateBarCouncil || "Bar Council of Delhi",
+            enrollmentYear: Number(payload.metadata?.enrollmentYear || new Date().getFullYear()),
+            city: "New Delhi",
+            state: "Delhi",
+            verificationStatus: LawyerVerificationStatus.APPROVED,
+            isListed: true,
+            isAvailable: true,
           },
         });
       }

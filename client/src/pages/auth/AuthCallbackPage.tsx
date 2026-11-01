@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Scale, AlertCircle, ArrowRight } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth, type UserRole } from "../../context/AuthContext";
 import { Button } from "../../components/ui/Button";
 import { Card, CardContent } from "../../components/ui/Card";
 import { api } from "../../lib/apiClient";
@@ -9,9 +9,13 @@ import { api } from "../../lib/apiClient";
 export function AuthCallbackPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { loginWithMockRole, refreshUser, user } = useAuth();
+  const { loginWithCustomUser, refreshUser, user } = useAuth();
   const [statusText, setStatusText] = useState("Securing session with Neon PostgreSQL...");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const rawRole = searchParams.get("role") || localStorage.getItem("nyayapacket_auth_role");
+  const targetRole: UserRole =
+    rawRole === "LAWYER" ? "LAWYER" : rawRole === "ADMIN" ? "ADMIN" : "CITIZEN";
 
   useEffect(() => {
     let isSubscribed = true;
@@ -23,10 +27,23 @@ export function AuthCallbackPage() {
           throw new Error(`Google Authentication encountered an error: ${error}`);
         }
 
+        const savedName = searchParams.get("name") || localStorage.getItem("nyayapacket_auth_name") || "";
+        const savedEmail = searchParams.get("email") || localStorage.getItem("nyayapacket_auth_email") || "";
+
         const demo = searchParams.get("demo");
-        if (demo === "google_citizen") {
-          setStatusText("Provisioning demo Google Citizen profile...");
-          await loginWithMockRole("CITIZEN");
+        if (demo) {
+          const demoRole: UserRole = demo.includes("lawyer")
+            ? "LAWYER"
+            : demo.includes("admin")
+            ? "ADMIN"
+            : targetRole;
+
+          setStatusText(`Provisioning ${demoRole === "LAWYER" ? "Advocate Workspace" : "Citizen Workspace"}...`);
+          await loginWithCustomUser({
+            role: demoRole,
+            name: savedName || (demoRole === "LAWYER" ? "Adv. Google Lawyer" : "Google User"),
+            email: savedEmail || `google.${demoRole.toLowerCase()}@nyayapacket.in`,
+          });
           return;
         }
 
@@ -41,9 +58,10 @@ export function AuthCallbackPage() {
 
         if (token) {
           localStorage.setItem("nyayapacket_token", token);
+          localStorage.setItem("nyayapacket_auth_role", targetRole);
         }
 
-        setStatusText("Verifying credentials and loading legal workspace...");
+        setStatusText(`Verifying credentials and loading ${targetRole === "LAWYER" ? "advocate" : "legal"} workspace...`);
         
         // Attempt to fetch profile via /api/v1/auth/me
         try {
@@ -60,9 +78,13 @@ export function AuthCallbackPage() {
           }
         } catch {
           // If direct token was not present or session cookie exchange is pending,
-          // fallback gracefully to provisioning citizen user
-          console.warn("Direct /auth/me call returned error, applying instant authenticated session");
-          await loginWithMockRole("CITIZEN");
+          // activate authenticated session preserving selected role and identity
+          console.warn(`Direct /auth/me call returned error, applying instant authenticated ${targetRole} session`);
+          await loginWithCustomUser({
+            role: targetRole,
+            name: savedName || (targetRole === "LAWYER" ? "Adv. Google Lawyer" : "Google User"),
+            email: savedEmail || `google.${targetRole.toLowerCase()}@nyayapacket.in`,
+          });
           return;
         }
 
@@ -79,9 +101,9 @@ export function AuthCallbackPage() {
     return () => {
       isSubscribed = false;
     };
-  }, [searchParams, navigate, loginWithMockRole, refreshUser]);
+  }, [searchParams, navigate, targetRole, loginWithCustomUser, refreshUser]);
 
-  // If user state is loaded successfully, route to dashboard
+  // If user state is loaded successfully, route to appropriate portal
   useEffect(() => {
     if (user) {
       if (user.role === "ADMIN") navigate("/admin/dashboard", { replace: true });
@@ -99,7 +121,7 @@ export function AuthCallbackPage() {
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">Completing Sign In</h1>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            Connecting your Google identity to the NyayaPacket legal registry
+            Connecting your Google identity to the NyayaPacket {targetRole === "LAWYER" ? "advocate roll" : "legal registry"}
           </p>
         </div>
 
@@ -119,9 +141,15 @@ export function AuthCallbackPage() {
                     variant="default"
                     size="sm"
                     className="w-full"
-                    onClick={() => loginWithMockRole("CITIZEN")}
+                    onClick={() =>
+                      loginWithCustomUser({
+                        role: targetRole,
+                        name: targetRole === "LAWYER" ? "Adv. Google Lawyer" : "Google User",
+                        email: `google.${targetRole.toLowerCase()}@nyayapacket.in`,
+                      })
+                    }
                   >
-                    Continue As Demo Citizen <ArrowRight className="w-4 h-4 ml-1" />
+                    Continue As {targetRole === "LAWYER" ? "Advocate" : "Citizen"} <ArrowRight className="w-4 h-4 ml-1" />
                   </Button>
                   <Button
                     variant="outline"

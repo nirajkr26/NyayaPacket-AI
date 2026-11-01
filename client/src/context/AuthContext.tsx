@@ -24,6 +24,16 @@ export interface User {
   } | null;
 }
 
+export interface UserCredentials {
+  role: UserRole;
+  name?: string;
+  email?: string;
+  phone?: string;
+  barCouncilNumber?: string;
+  stateBarCouncil?: string;
+  enrollmentYear?: number;
+}
+
 interface AuthContextType {
   user: User | null;
   token: string | null;
@@ -33,7 +43,8 @@ interface AuthContextType {
   logout: () => void;
   refreshUser: () => Promise<void>;
   loginWithMockRole: (role: UserRole) => Promise<void>;
-  loginWithGoogle: () => Promise<void>;
+  loginWithCustomUser: (creds: UserCredentials) => Promise<void>;
+  loginWithGoogle: (role?: UserRole, customName?: string, customEmail?: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -85,26 +96,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   // Helper function to generate test tokens for seamless demo and pairing
-  const loginWithMockRole = async (role: UserRole) => {
+  const toBase64Url = (str: string) =>
+    btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (_, p1) => String.fromCharCode(parseInt(p1, 16))))
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
+
+  // Flexible login supporting custom role, user name, and credentials
+  const loginWithCustomUser = async (creds: UserCredentials) => {
     setIsLoading(true);
     try {
+      const role = creds.role;
       const ts = Date.now().toString().slice(-4);
-      const sub = `demo_${role.toLowerCase()}_${ts}`;
-      const email = `demo.${role.toLowerCase()}.${ts}@nyayapacket.in`;
-      const name =
-        role === "ADMIN"
-          ? "Demo Administrator"
-          : role === "LAWYER"
-          ? "Adv. Vikram Sharma"
-          : "Rahul Citizen";
+      
+      let email = creds.email?.trim().toLowerCase();
+      if (!email) {
+        email = `user.${role.toLowerCase()}.${ts}@nyayapacket.in`;
+      }
 
-      const toBase64Url = (str: string) =>
-        btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (_, p1) => String.fromCharCode(parseInt(p1, 16))))
-          .replace(/\+/g, "-")
-          .replace(/\//g, "_")
-          .replace(/=+$/, "");
+      // Generate a friendly name if not provided
+      let name = creds.name?.trim();
+      if (!name) {
+        if (creds.email) {
+          const localPart = creds.email.split("@")[0] || "";
+          name = localPart
+            .split(/[._-]/)
+            .map((s) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase())
+            .join(" ");
+          if (role === "LAWYER" && !name.toLowerCase().startsWith("adv")) {
+            name = `Adv. ${name}`;
+          }
+        } else {
+          name =
+            role === "ADMIN"
+              ? "Platform Administrator"
+              : role === "LAWYER"
+              ? "Adv. Vikram Sharma"
+              : "Rahul Sharma";
+        }
+      }
 
-      // Base64url token accepted by test & development verifier
+      const emailHash = btoa(email).replace(/[^a-zA-Z0-9]/g, "").slice(0, 16);
+      const sub = `np_${role.toLowerCase()}_${emailHash || ts}`;
+
       const header = toBase64Url(JSON.stringify({ alg: "HS256", typ: "JWT" }));
       const payload = toBase64Url(
         JSON.stringify({
@@ -112,42 +146,82 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email,
           name,
           role,
-          metadata: { role },
+          metadata: {
+            role,
+            phone: creds.phone,
+            barCouncilNumber: creds.barCouncilNumber,
+            stateBarCouncil: creds.stateBarCouncil,
+            enrollmentYear: creds.enrollmentYear,
+          },
           exp: Math.floor(Date.now() / 1000) + 86400 * 7,
         })
       );
       const demoToken = `${header}.${payload}.mock_signature`;
 
       localStorage.setItem("nyayapacket_token", demoToken);
+      localStorage.setItem("nyayapacket_auth_role", role);
       setToken(demoToken);
 
-      // Call /api/v1/auth/me to provision user in Neon PostgreSQL
+      // Call /api/v1/auth/me to provision user in Neon PostgreSQL with their designated role & name
       const res = await api.get<User>("/auth/me");
       if (res.data) {
         setUser(res.data);
         localStorage.setItem("nyayapacket_user", JSON.stringify(res.data));
       }
     } catch (err: any) {
-      console.error("Failed demo login:", err);
+      console.error("Failed custom user login:", err);
       logout();
     } finally {
       setIsLoading(false);
     }
   };
 
-  const loginWithGoogle = async () => {
+  // Helper function for 1-click sandbox demo access
+  const loginWithMockRole = async (role: UserRole) => {
+    return loginWithCustomUser({
+      role,
+      name:
+        role === "ADMIN"
+          ? "Demo Administrator"
+          : role === "LAWYER"
+          ? "Adv. Vikram Sharma"
+          : "Rahul Sharma",
+      email:
+        role === "ADMIN"
+          ? "admin@nyayapacket.in"
+          : role === "LAWYER"
+          ? "vikram.sharma@nyayapacket.in"
+          : "rahul.sharma@nyayapacket.in",
+    });
+  };
+
+  const loginWithGoogle = async (role: UserRole = "CITIZEN", customName?: string, customEmail?: string) => {
     setIsLoading(true);
     try {
-      const callbackURL = `${window.location.origin}/auth/callback`;
-      const res = await api.post<{ url: string; redirect: boolean }>("/auth/google-url", { callbackURL });
+      localStorage.setItem("nyayapacket_auth_role", role);
+      if (customName) localStorage.setItem("nyayapacket_auth_name", customName);
+      if (customEmail) localStorage.setItem("nyayapacket_auth_email", customEmail);
+
+      const callbackURL = `${window.location.origin}/auth/callback?role=${encodeURIComponent(role)}`;
+      const res = await api.post<{ url: string; redirect: boolean }>("/auth/google-url", {
+        callbackURL,
+        role,
+        name: customName,
+        email: customEmail,
+      });
+
       if (res.data?.url) {
         window.location.href = res.data.url;
         return;
       }
       throw new Error("No OAuth redirect URL returned from authentication provider");
     } catch (err) {
-      console.warn("Neon Google Auth request failed, activating demo Google session:", err);
-      await loginWithMockRole("CITIZEN");
+      console.warn("Neon Google Auth request failed, activating role-based session:", err);
+      await loginWithCustomUser({
+        role,
+        name: customName || (role === "LAWYER" ? "Adv. Google Lawyer" : "Google User"),
+        email: customEmail || `google.${role.toLowerCase()}@nyayapacket.in`,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -174,6 +248,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logout,
         refreshUser,
         loginWithMockRole,
+        loginWithCustomUser,
         loginWithGoogle,
       }}
     >

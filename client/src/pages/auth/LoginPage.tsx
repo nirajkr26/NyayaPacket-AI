@@ -6,6 +6,7 @@ import { Input } from "../../components/ui/Input";
 import { Button } from "../../components/ui/Button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
+import { Tabs, TabsList, TabsTrigger } from "../../components/ui/Tabs";
 
 function GoogleIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
@@ -31,14 +32,16 @@ function GoogleIcon({ className = "w-5 h-5" }: { className?: string }) {
 }
 
 export function LoginPage() {
-  const { loginWithMockRole, loginWithGoogle, isAuthenticated, user, isLoading } = useAuth();
+  const { loginWithMockRole, loginWithCustomUser, loginWithGoogle, isAuthenticated, user, isLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [selectedRole, setSelectedRole] = useState<UserRole>("CITIZEN");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [demoLoadingRole, setDemoLoadingRole] = useState<UserRole | null>(null);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isEmailLoading, setIsEmailLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // If already authenticated, redirect to appropriate role portal
@@ -74,7 +77,7 @@ export function LoginPage() {
     setError(null);
     setIsGoogleLoading(true);
     try {
-      await loginWithGoogle();
+      await loginWithGoogle(selectedRole);
     } catch (err: any) {
       setError(err?.message || "Failed to initiate Google Sign In");
     } finally {
@@ -82,15 +85,24 @@ export function LoginPage() {
     }
   };
 
-  const handleStandardSubmit = (e: React.FormEvent) => {
+  const handleStandardSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     if (!email.trim() || !password.trim()) {
       setError("Please enter both email address and password.");
       return;
     }
-    // For local evaluation, default to Citizen role if no live OAuth provider is configured
-    handleDemoLogin("CITIZEN");
+    setIsEmailLoading(true);
+    try {
+      await loginWithCustomUser({
+        role: selectedRole,
+        email: email.trim().toLowerCase(),
+      });
+    } catch (err: any) {
+      setError(err?.message || "Failed to sign in with provided credentials");
+    } finally {
+      setIsEmailLoading(false);
+    }
   };
 
   return (
@@ -176,6 +188,26 @@ export function LoginPage() {
         {/* Standard Email / Password Form */}
         <Card className="glass-card shadow-lg border-border">
           <CardContent className="p-6">
+            {/* Account Type Selection */}
+            <div className="space-y-1.5 mb-5">
+              <label className="text-xs font-semibold text-foreground">Sign In Role</label>
+              <Tabs
+                defaultValue={selectedRole}
+                value={selectedRole}
+                onValueChange={(val) => setSelectedRole(val as UserRole)}
+                className="w-full"
+              >
+                <TabsList className="grid grid-cols-2 w-full">
+                  <TabsTrigger value="CITIZEN" className="gap-2 text-xs">
+                    <User className="w-3.5 h-3.5" /> Citizen Portal
+                  </TabsTrigger>
+                  <TabsTrigger value="LAWYER" className="gap-2 text-xs">
+                    <Briefcase className="w-3.5 h-3.5" /> Advocate Portal
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+
             {/* Google OAuth Button */}
             <Button
               type="button"
@@ -186,7 +218,7 @@ export function LoginPage() {
               disabled={isLoading || !!demoLoadingRole}
             >
               <GoogleIcon className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
-              <span>Continue with Google</span>
+              <span>Continue with Google as {selectedRole === "LAWYER" ? "Advocate" : "Citizen"}</span>
             </Button>
 
             {/* Divider */}
@@ -245,9 +277,10 @@ export function LoginPage() {
                 type="submit"
                 variant="default"
                 className="w-full font-bold h-10 gap-2 shadow-sm"
+                isLoading={isEmailLoading}
                 disabled={isLoading || !!demoLoadingRole}
               >
-                Sign In With Email <ArrowRight className="w-4 h-4" />
+                Sign In as {selectedRole === "LAWYER" ? "Advocate" : "Citizen"} <ArrowRight className="w-4 h-4" />
               </Button>
             </form>
 

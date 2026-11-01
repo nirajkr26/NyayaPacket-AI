@@ -85,7 +85,22 @@ authRouter.get("/me", authenticate, (req: Request, res: Response, next: NextFunc
  */
 authRouter.post("/google-url", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const callbackURL = (req.body?.callbackURL as string) || "http://localhost:3000/auth/callback";
+    const role = (req.body?.role as string) || "CITIZEN";
+    const name = (req.body?.name as string) || "";
+    const email = (req.body?.email as string) || "";
+    let callbackURL = (req.body?.callbackURL as string) || "http://localhost:3000/auth/callback";
+
+    // Ensure role and any provided identity are preserved in callbackURL
+    if (!callbackURL.includes("role=")) {
+      const sep = callbackURL.includes("?") ? "&" : "?";
+      callbackURL = `${callbackURL}${sep}role=${encodeURIComponent(role)}`;
+    }
+    if (name && !callbackURL.includes("name=")) {
+      callbackURL = `${callbackURL}&name=${encodeURIComponent(name)}`;
+    }
+    if (email && !callbackURL.includes("email=")) {
+      callbackURL = `${callbackURL}&email=${encodeURIComponent(email)}`;
+    }
 
     if (process.env.AUTH_URL) {
       try {
@@ -110,10 +125,11 @@ authRouter.post("/google-url", async (req: Request, res: Response, next: NextFun
     }
 
     // Fallback if Neon Auth service is offline or in mock dev mode
+    const sep = callbackURL.includes("?") ? "&" : "?";
     return sendSuccess(
       res,
       {
-        url: `${callbackURL}?demo=google_citizen`,
+        url: `${callbackURL}${sep}demo=google_${role.toLowerCase()}`,
         redirect: false,
       },
       "Demo Google OAuth fallback URL"
