@@ -51,6 +51,13 @@ function loadEnv(): Env {
     }
   }
 
+  // Ensure connection pool options for PostgreSQL (Neon / PgBouncer pooler)
+  if (raw.DATABASE_URL && !raw.DATABASE_URL.includes("connection_limit")) {
+    const sep = raw.DATABASE_URL.includes("?") ? "&" : "?";
+    raw.DATABASE_URL = `${raw.DATABASE_URL}${sep}connection_limit=20&pool_timeout=30`;
+    process.env.DATABASE_URL = raw.DATABASE_URL;
+  }
+
   const result = envSchema.safeParse(raw);
   if (!result.success) {
     console.error("❌ Invalid environment variables:", result.error.format());

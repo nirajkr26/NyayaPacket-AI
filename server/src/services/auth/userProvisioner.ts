@@ -8,10 +8,31 @@ export type AuthUserWithProfile = User & {
   lawyerProfile?: LawyerProfile | null;
 };
 
+interface CachedUserEntry {
+  user: AuthUserWithProfile;
+  expiresAt: number;
+}
+const userCache = new Map<string, CachedUserEntry>();
+
+export function clearUserCache(authUserId?: string) {
+  if (authUserId) {
+    userCache.delete(authUserId);
+  } else {
+    userCache.clear();
+  }
+}
+
 export async function getOrProvisionUser(
   payload: VerifiedAuthPayload
 ): Promise<AuthUserWithProfile> {
   const authUserId = payload.sub;
+
+  // Fast-path: return cached user if retrieved within last 60 seconds
+  const cached = userCache.get(authUserId);
+  if (cached && Date.now() < cached.expiresAt) {
+    return cached.user;
+  }
+
   const email = (payload.email || `${authUserId}@auth.local`).toLowerCase().trim();
   const fullName = payload.name || payload.email?.split("@")[0] || "Citizen User";
   const profileImage = payload.picture || null;
@@ -23,9 +44,10 @@ export async function getOrProvisionUser(
   });
 
   if (existingUser) {
+    let resolvedUser = existingUser as AuthUserWithProfile;
     // Optionally update profile details if changed
     if (existingUser.fullName !== fullName || existingUser.profileImage !== profileImage) {
-      return (await prisma.user.update({
+      resolvedUser = (await prisma.user.update({
         where: { id: existingUser.id },
         data: {
           fullName: existingUser.fullName || fullName,
@@ -34,7 +56,8 @@ export async function getOrProvisionUser(
         include: { lawyerProfile: true },
       })) as AuthUserWithProfile;
     }
-    return existingUser;
+    userCache.set(authUserId, { user: resolvedUser, expiresAt: Date.now() + 60_000 });
+    return resolvedUser;
   }
 
   // 2. Check if a user with this email already exists without authUserId linked
@@ -45,7 +68,7 @@ export async function getOrProvisionUser(
 
   if (userByEmail) {
     logger.info({ userId: userByEmail.id, authUserId }, "Linking existing email user with authUserId");
-    return (await prisma.user.update({
+    const linked = (await prisma.user.update({
       where: { id: userByEmail.id },
       data: {
         authUserId,
@@ -53,6 +76,8 @@ export async function getOrProvisionUser(
       },
       include: { lawyerProfile: true },
     })) as AuthUserWithProfile;
+    userCache.set(authUserId, { user: linked, expiresAt: Date.now() + 60_000 });
+    return linked;
   }
 
   // 3. Provision new User
@@ -99,10 +124,12 @@ export async function getOrProvisionUser(
       timeout: 30000,
     });
 
-    return (await prisma.user.findUnique({
+    const provisioned = (await prisma.user.findUnique({
       where: { id: newUser.id },
       include: { lawyerProfile: true },
     })) as AuthUserWithProfile;
+    userCache.set(authUserId, { user: provisioned, expiresAt: Date.now() + 60_000 });
+    return provisioned;
   } catch (err: any) {
     // Intercept unique constraint collisions from concurrent initial requests
     if (err?.code === "P2002") {
@@ -114,7 +141,9 @@ export async function getOrProvisionUser(
         include: { lawyerProfile: true },
       });
       if (existing) {
-        return existing as AuthUserWithProfile;
+        const found = existing as AuthUserWithProfile;
+        userCache.set(authUserId, { user: found, expiresAt: Date.now() + 60_000 });
+        return found;
       }
     }
     throw err;
