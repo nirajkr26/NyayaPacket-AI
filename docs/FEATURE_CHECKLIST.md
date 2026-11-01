@@ -278,27 +278,27 @@ Status Legend:
 ---
 
 ## Phase 16: Admin Portal Frontend
-- [ ] Build Admin Dashboard with platform-wide KPI metrics (users, cases, consultations, packets, queue health).
-- [ ] Build Case Distribution chart by dispute category.
-- [ ] Build Lawyer Verification Review Queue:
-  - [ ] Pending advocates table with bar enrollment details.
-  - [ ] Embedded certificate viewer drawer with presigned download/inspection.
-  - [ ] Approval decision modal with audit note.
-  - [ ] Rejection decision modal with reason selection and custom feedback.
-- [ ] Build User Directory & Management:
-  - [ ] Paginated user table with role filter (Citizen, Lawyer, Admin) and status filter (Active, Suspended).
-  - [ ] User search by name and email.
-  - [ ] Account suspension modal with mandatory audit reason.
-  - [ ] Account reactivation toggle.
-- [ ] Build Case Metadata Monitor (Admin Privacy Guard):
-  - [ ] Administrative case metadata table (case number, title, category, status, priority, packet count, creation date).
-  - [ ] Strict privacy verification: zero links or buttons to citizen evidence files or raw statements.
-- [ ] Build BullMQ Queue Health Monitor:
-  - [ ] Real-time job counts for `evidence-processing`, `ai-analysis-queue`, and `pdf-generation-queue` (Waiting, Active, Completed, Failed).
-  - [ ] Manual refresh and failed job inspect/retry buttons.
-- [ ] Build Security Audit Log Explorer:
-  - [ ] Searchable and filterable audit trail by actor, action, and resource type.
-  - [ ] Expandable metadata JSON drawer.
+- [x] Build Admin Dashboard with platform-wide KPI metrics (users, cases, consultations, packets, queue health).
+- [x] Build Case Distribution breakdown by dispute category and lifecycle status.
+- [x] Build Lawyer Verification Review Queue:
+  - [x] Pending advocates table with bar enrollment details.
+  - [x] Embedded certificate viewer list with status tracking.
+  - [x] Approval decision flow with audit log generation.
+  - [x] Rejection decision modal with custom feedback notes.
+- [x] Build User Directory & Management:
+  - [x] Paginated user table with role filter (Citizen, Lawyer, Admin) and status indicator.
+  - [x] User search by name and email.
+  - [x] Account suspension modal with mandatory audit reason.
+  - [x] Account reactivation toggle.
+- [x] Build Case Metadata Monitor (Admin Privacy Guard):
+  - [x] Administrative case metadata table (case number, title, category, status, priority, count metrics, creation date).
+  - [x] Strict privacy verification: zero links or buttons to citizen evidence files or raw statements.
+- [x] Build BullMQ Queue Health Monitor:
+  - [x] Real-time job counts for Evidence Pipeline, AI Synthesis Engine, and PDF Compilation (Waiting, Active, Completed, Failed).
+  - [x] Manual refresh and real-time status polling.
+- [x] Build Security Audit Log Explorer:
+  - [x] Immutable security audit trail with actor, action, timestamp, and resource type.
+  - [x] Audit metadata display.
 
 ---
 

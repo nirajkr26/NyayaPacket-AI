@@ -375,7 +375,7 @@ Comprehensive documentation is maintained in the [`docs/`](docs/) directory:
 - [x] **Phase 13: Frontend Foundation & Public Website** (Completed)
 - [x] **Phase 14: Citizen Portal Frontend** (Completed)
 - [x] **Phase 15: Lawyer Portal Frontend** (Completed)
-- [ ] **Phase 16: Admin Portal Frontend**
+- [x] **Phase 16: Admin Portal Frontend** (Completed)
 - [ ] **Phase 17: End-to-End Integration, Validation & Release**
 
 ---

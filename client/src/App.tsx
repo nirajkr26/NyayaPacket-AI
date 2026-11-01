@@ -25,6 +25,15 @@ import { LawyerDashboard } from "./pages/lawyer/LawyerDashboard";
 import { LawyerOnboardingPage } from "./pages/lawyer/LawyerOnboardingPage";
 import { SharedCaseWorkspacePage } from "./pages/lawyer/SharedCaseWorkspacePage";
 
+// Phase 16 Admin Portal Pages
+import { AdminLayout } from "./components/admin/AdminLayout";
+import { AdminDashboard } from "./pages/admin/AdminDashboard";
+import { AdminLawyerVerificationPage } from "./pages/admin/AdminLawyerVerificationPage";
+import { AdminUsersPage } from "./pages/admin/AdminUsersPage";
+import { AdminCasesPage } from "./pages/admin/AdminCasesPage";
+import { AdminAuditLogsPage } from "./pages/admin/AdminAuditLogsPage";
+import { AdminQueuesPage } from "./pages/admin/AdminQueuesPage";
+
 // Global React Query Client with smart defaults
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -84,13 +93,21 @@ export default function App() {
 
               {/* Admin Portal (Phase 16) */}
               <Route
-                path="/admin/*"
+                path="/admin"
                 element={
                   <ProtectedRoute allowedRoles={["ADMIN"]}>
-                    <div className="p-8 text-center">Admin Portal Loading...</div>
+                    <AdminLayout />
                   </ProtectedRoute>
                 }
-              />
+              >
+                <Route index element={<Navigate to="/admin/dashboard" replace />} />
+                <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="lawyers" element={<AdminLawyerVerificationPage />} />
+                <Route path="users" element={<AdminUsersPage />} />
+                <Route path="cases" element={<AdminCasesPage />} />
+                <Route path="queues" element={<AdminQueuesPage />} />
+                <Route path="audit-logs" element={<AdminAuditLogsPage />} />
+              </Route>
 
               {/* 404 Fallback */}
               <Route element={<PublicLayout />}>
